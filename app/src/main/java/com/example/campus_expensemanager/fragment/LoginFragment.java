@@ -15,10 +15,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.activity.HomeActivity;
 import com.example.campus_expensemanager.database.DatabaseHelper;
+
 
 public class LoginFragment extends Fragment {
 
@@ -27,13 +29,12 @@ public class LoginFragment extends Fragment {
     private TextView tvRegister, tvForgotPassword;
     private DatabaseHelper databaseHelper;
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        // Initialize the views
+        // Initialize views
         etUsername = view.findViewById(R.id.etUsername);
         etPassword = view.findViewById(R.id.etPassword);
         btnLogin = view.findViewById(R.id.btnLogin);
@@ -42,87 +43,70 @@ public class LoginFragment extends Fragment {
 
         // Initialize the database helper
         databaseHelper = new DatabaseHelper(getContext());
-        // Set onClickListener for the login button
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String inputUsername = etUsername.getText().toString().trim();
-                String inputPassword = etPassword.getText().toString().trim();
 
-                // Validate input
-                if (inputUsername.isEmpty() || inputPassword.isEmpty()) {
-                    Toast.makeText(getActivity(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        // Handle login button click
+        btnLogin.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
 
-                // Check credentials in the database
-                if (isValidUser(inputUsername, inputPassword)) {
-                    // Mark user as logged in
-                    databaseHelper.setLoggedIn(inputUsername, true);
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(getActivity(), "Please enter both username and password", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                    // Successful login, navigate to HomeActivity
-                    Intent intent = new Intent(getActivity(), HomeActivity.class);
-                    startActivity(intent);
-                    // Finish the current activity to prevent going back to the login screen
-                    getActivity().finish();
-                } else {
-                    // Show error message
-                    Toast.makeText(getActivity(), "Invalid username or password", Toast.LENGTH_SHORT).show();
-                }
+            if (isValidLogin(username, password)) {
+                Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                navigateToHomeFragment(username);
+            } else {
+                Toast.makeText(getActivity(), "Invalid username or password", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Navigate to RegisterFragment
-        tvRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new RegisterFragment())
-                        .addToBackStack(null)
-                        .commit();
-            }
+        // Handle register link click
+        tvRegister.setOnClickListener(v -> {
+            navigateToRegisterFragment();
+            Toast.makeText(getActivity(), "Navigate to Register Screen", Toast.LENGTH_SHORT).show();
         });
 
-        // Navigate to ForgotPasswordFragment
-        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new ForgotPasswordFragment())
-                        .addToBackStack(null)
-                        .commit();
-            }
+        // Handle forgot password link click
+        tvForgotPassword.setOnClickListener(v -> {
+            // TODO: Navigate to Forgot Password Screen
+            Toast.makeText(getActivity(), "Navigate to Forgot Password Screen", Toast.LENGTH_SHORT).show();
         });
 
         return view;
     }
+    private void navigateToHomeFragment(String loggedInUsername) {
+        Bundle bundle = new Bundle();
+        bundle.putString("username", loggedInUsername);
 
-    private boolean isValidUser(String username, String password) {
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-        Cursor cursor = null;
-        boolean isValid = false;
+        // Tạo HomeFragment mới và thiết lập Bundle vào fragment
+        HomeFragment homeFragment = new HomeFragment();
+        homeFragment.setArguments(bundle);
 
-        try {
-            cursor = databaseHelper.getReadableDatabase().rawQuery(query, new String[]{username, password});
-            if (cursor != null && cursor.moveToFirst()) {
-                isValid = true; // Người dùng hợp lệ
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Error checking user credentials", Toast.LENGTH_SHORT).show();
-        } finally {
-            if (cursor != null) {
-                cursor.close(); // Đảm bảo đóng con trỏ
-            }
-        }
+        // Thực hiện giao diện chuyển fragment
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, homeFragment); // R.id.fragment_container là container của Fragment trong activity
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
-        return isValid;
+    private void navigateToRegisterFragment() {
+        RegisterFragment registerFragment = new RegisterFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, registerFragment); // Replace with RegisterFragment
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private boolean isValidLogin(String username, String password) {
+        return databaseHelper.checkUserCredentials(username, password);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Close the database to avoid memory leaks
         databaseHelper.close();
     }
 }
+

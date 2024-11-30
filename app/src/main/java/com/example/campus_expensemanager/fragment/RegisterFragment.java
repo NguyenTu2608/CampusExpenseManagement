@@ -18,17 +18,17 @@ import com.example.campus_expensemanager.database.DatabaseHelper;
 
 public class RegisterFragment extends Fragment {
 
-    private EditText etEmail, etUsername, etPassword, etPhone;
+    private EditText etFullName, etEmail, etUsername, etPassword, etPhone;
     private Button btnRegister;
     private DatabaseHelper databaseHelper;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
         // Initialize views
+        etFullName = view.findViewById(R.id.etFullName);
         etEmail = view.findViewById(R.id.etEmail);
         etUsername = view.findViewById(R.id.etUsername);
         etPassword = view.findViewById(R.id.etPassword);
@@ -42,13 +42,14 @@ public class RegisterFragment extends Fragment {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String fullName = etFullName.getText().toString().trim();
                 String email = etEmail.getText().toString().trim();
                 String username = etUsername.getText().toString().trim();
                 String password = etPassword.getText().toString().trim();
                 String phone = etPhone.getText().toString().trim();
 
                 // Validate input
-                if (email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
+                if (fullName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
                     Toast.makeText(getActivity(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -60,12 +61,11 @@ public class RegisterFragment extends Fragment {
                 }
 
                 // Insert user into the database
-                boolean isInserted = databaseHelper.insertUser(email, username, password, phone);
+                boolean isInserted = databaseHelper.insertUser(fullName, email, username, password, phone);
 
                 if (isInserted) {
                     Toast.makeText(getActivity(), "Registration successful", Toast.LENGTH_SHORT).show();
-                    // Navigate back to the login screen or home screen
-                    getParentFragmentManager().popBackStack();
+                    getParentFragmentManager().popBackStack(); // Navigate back
                 } else {
                     Toast.makeText(getActivity(), "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
                 }
@@ -76,7 +76,6 @@ public class RegisterFragment extends Fragment {
     }
 
     private boolean isUserExists(String email, String username) {
-        // Query the database to check for existing email or username
         Cursor cursor = databaseHelper.getAllUsers();
         while (cursor.moveToNext()) {
             @SuppressLint("Range") String existingEmail = cursor.getString(cursor.getColumnIndex("email"));
@@ -93,7 +92,6 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Close the database to avoid memory leaks
         databaseHelper.close();
     }
 }

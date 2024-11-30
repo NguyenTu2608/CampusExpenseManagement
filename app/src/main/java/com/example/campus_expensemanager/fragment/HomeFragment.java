@@ -14,56 +14,83 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.database.DatabaseHelper;
+import com.example.campus_expensemanager.entities.User;
 
 public class HomeFragment extends Fragment {
 
-    private DatabaseHelper databaseHelper;
-    private TextView tvWelcomeMessage;
+    private TextView tvName, tvFullName, tvBalance;
+    private String username;
+    private Button btnAddExpense, btnDisplayExpenses;
 
-    public HomeFragment() {
-        // Default constructor
-    }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Initialize DatabaseHelper
-        databaseHelper = new DatabaseHelper(getContext());
-
-        // Initialize views
-        tvWelcomeMessage = view.findViewById(R.id.tv_name);
-        Button btnAddExpense = view.findViewById(R.id.btn_add_expense);
-
-        // Get current user information
-        Cursor cursor = databaseHelper.getCurrentUser(); // Add a method to fetch the current logged-in user
-        if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") String username = cursor.getString(cursor.getColumnIndex("username"));
-
-            // Set welcome message
-            tvWelcomeMessage.setText("Hello, " + username + "!");
-            cursor.close();
+        tvName = view.findViewById(R.id.tv_name);
+        tvFullName = view.findViewById(R.id.tv_full_name);
+        tvBalance = view.findViewById(R.id.tv_balance);
+        btnAddExpense = view.findViewById(R.id.btn_add_expense);
+        btnDisplayExpenses = view.findViewById(R.id.btn_display_expenses);
+        // Lấy username từ Bundle truyền vào
+        if (getArguments() != null) {
+            username = getArguments().getString("username");
         }
 
-        // Set onClickListener for adding expense
-        btnAddExpense.setOnClickListener(v -> loadFragment(new AddExpenseFragment()));
+        // Xử lý sự kiện click cho nút Add Expense
+        btnAddExpense.setOnClickListener(v -> {
+            // Mở màn hình thêm chi phí (AddExpenseFragment hoặc Activity)
+            openAddExpenseScreen();
+        });
+
+        // Xử lý sự kiện click cho nút Display Expenses
+        btnDisplayExpenses.setOnClickListener(v -> {
+            // Mở màn hình hiển thị các chi phí đã thêm (DisplayExpensesFragment hoặc Activity)
+            openDisplayExpensesScreen();
+        });
+        // Gọi phương thức cập nhật UI
+        updateUI();
 
         return view;
     }
 
-    private void loadFragment(Fragment fragment) {
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
+    private void updateUI() {
+        // Lấy dữ liệu người dùng từ cơ sở dữ liệu
+        DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+        Cursor user = dbHelper.getUserByUsername(username);
+
+        if (user != null && user.moveToFirst()) {
+            // Cập nhật lời chào tên người dùng
+            @SuppressLint("Range") String userName = user.getString(user.getColumnIndex(DatabaseHelper.COLUMN_USERNAME));
+            tvName.setText("Chào " + userName);
+
+            // Cập nhật tên đầy đủ trên thẻ ngân hàng
+            @SuppressLint("Range") String fullName = user.getString(user.getColumnIndex(DatabaseHelper.COLUMN_FULL_NAME));
+            tvFullName.setText(fullName);
+
+            // Cập nhật số dư (mặc định là 0)
+            tvBalance.setText("0 VND");
+        }
+    }
+
+    private void openAddExpenseScreen() {
+        // Giả sử bạn có một AddExpenseFragment hoặc Activity để thêm chi phí
+        AddExpenseFragment addExpenseFragment = new AddExpenseFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, addExpenseFragment); // R.id.fragment_container là container của Fragment trong activity
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // Close the database to avoid memory leaks
-        databaseHelper.close();
+    private void openDisplayExpensesScreen() {
+        // Giả sử bạn có một DisplayExpensesFragment hoặc Activity để hiển thị chi phí
+        DisplayExpenseFragment displayExpenseFragment = new DisplayExpenseFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, displayExpenseFragment); // R.id.fragment_container là container của Fragment trong activity
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
+
 }
+
