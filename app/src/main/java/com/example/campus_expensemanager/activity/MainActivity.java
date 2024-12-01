@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.campus_expensemanager.R;
+import com.example.campus_expensemanager.database.DatabaseHelper;
 import com.example.campus_expensemanager.fragment.AddExpenseFragment;
 import com.example.campus_expensemanager.fragment.HomeFragment;
 import com.example.campus_expensemanager.fragment.LoginFragment;
@@ -22,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // Start with Login Fragment by default
         loadFragment(new LoginFragment());
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        dbHelper.checkTableStructure();
     }
 
     // Method to replace the fragment

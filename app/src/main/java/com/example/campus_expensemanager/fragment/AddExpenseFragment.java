@@ -23,6 +23,9 @@ public class AddExpenseFragment extends Fragment {
     private EditText amountEditText, descriptionEditText, dateEditText;
     private Spinner categorySpinner;
     private String selectedCategory;
+    private Spinner typeSpinner;
+    private String selectedType;
+    private String username;
 
     public AddExpenseFragment() {
         // Required empty public constructor
@@ -38,6 +41,12 @@ public class AddExpenseFragment extends Fragment {
         descriptionEditText = view.findViewById(R.id.descriptionEditText);
         dateEditText = view.findViewById(R.id.dateEditText);
         categorySpinner = view.findViewById(R.id.categorySpinner);
+        typeSpinner = view.findViewById(R.id.typeSpinner);
+
+
+        if (getArguments() != null) {
+            username = getArguments().getString("username");
+        }
 
         Button addButton = view.findViewById(R.id.addButton);
         Button btnDisplay = view.findViewById(R.id.btnDisplay);
@@ -50,12 +59,28 @@ public class AddExpenseFragment extends Fragment {
             transaction.commit();
         });
 
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.expense_types, android.R.layout.simple_spinner_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
+
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                selectedType = parentView.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                selectedType = "Expense";
+            }
+        });
+
         // Setup Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.expense_categories, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
-
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -76,19 +101,14 @@ public class AddExpenseFragment extends Fragment {
 
     private void addExpense() {
         try {
-            double amount = Double.parseDouble(amountEditText.getText().toString());
-            String description = descriptionEditText.getText().toString();
-            String date = dateEditText.getText().toString();
+            double amount = Double.parseDouble(amountEditText.getText().toString().trim());
+            String description = descriptionEditText.getText().toString().trim();
+            String date = dateEditText.getText().toString().trim();
 
-            boolean inserted = dbHelper.insertExpense(amount, description, date, selectedCategory);
+            
+            boolean inserted = dbHelper.addExpense(username, amount, description, date, selectedCategory, selectedType);
             if (inserted) {
                 Toast.makeText(getContext(), "Expense added", Toast.LENGTH_SHORT).show();
-
-                // Clear input fields after adding expense
-                amountEditText.setText("");
-                descriptionEditText.setText("");
-                dateEditText.setText("");
-                categorySpinner.setSelection(0);
             } else {
                 Toast.makeText(getContext(), "Error adding expense", Toast.LENGTH_SHORT).show();
             }

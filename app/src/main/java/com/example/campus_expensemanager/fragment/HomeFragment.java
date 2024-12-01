@@ -70,7 +70,8 @@ public class HomeFragment extends Fragment {
             tvFullName.setText(fullName);
 
             // Cập nhật số dư (mặc định là 0)
-            tvBalance.setText("0 VND");
+            @SuppressLint("Range") double balance = user.getDouble(user.getColumnIndex(DatabaseHelper.COLUMN_BALANCE));
+            tvBalance.setText(balance + " VND");
         }
     }
 
@@ -78,7 +79,10 @@ public class HomeFragment extends Fragment {
         // Giả sử bạn có một AddExpenseFragment hoặc Activity để thêm chi phí
         AddExpenseFragment addExpenseFragment = new AddExpenseFragment();
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, addExpenseFragment); // R.id.fragment_container là container của Fragment trong activity
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username); // Truyền username
+        addExpenseFragment.setArguments(bundle);
+        transaction.replace(R.id.fragment_container, addExpenseFragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }

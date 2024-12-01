@@ -6,108 +6,157 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.example.campus_expensemanager.entities.User;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+    public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // Các hằng số cơ sở dữ liệu và tên bảng
-    private static final String DATABASE_NAME = "campus_expense_manager.db";
-    private static final int DATABASE_VERSION = 2;
+        // Các hằng số cơ sở dữ liệu và tên bảng
+        private static final String DATABASE_NAME = "campus_expense_manager.db";
+        private static final int DATABASE_VERSION = 5;
 
-    // Bảng expenses
-    private static final String TABLE_EXPENSES = "expenses";
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_AMOUNT = "amount";
-    private static final String COLUMN_DESCRIPTION = "description";
-    private static final String COLUMN_DATE = "date";
-    private static final String COLUMN_TYPE = "type";
-    private static final String COLUMN_CATEGORY = "category";
+        // Bảng expenses
+        private static final String TABLE_EXPENSES = "expenses";
+        private static final String COLUMN_ID = "id";
+        public static final String COLUMN_AMOUNT = "amount";
+        private static final String COLUMN_DESCRIPTION = "description";
+        public static final String COLUMN_DATE = "date";
+        private static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_CATEGORY = "category";
 
-    // Bảng users
-    private static final String TABLE_USERS = "users";
-    private static final String COLUMN_USER_ID = "id";
-    public static final String COLUMN_FULL_NAME = "fullName";
-    private static final String COLUMN_EMAIL = "email";
-    public static final String COLUMN_USERNAME = "username";
-    private static final String COLUMN_PASSWORD = "password";
-    private static final String COLUMN_PHONE = "phone";
+        // Bảng users
+        private static final String TABLE_USERS = "users";
+        private static final String COLUMN_USER_ID = "id";
+        public static final String COLUMN_FULL_NAME = "fullName";
+        private static final String COLUMN_EMAIL = "email";
+        public static final String COLUMN_USERNAME = "username";
+        private static final String COLUMN_PASSWORD = "password";
+        private static final String COLUMN_PHONE = "phone";
+        public static final String COLUMN_BALANCE = "balance";
 
-    private static final String TABLE_CATEGORIES = "Categories";
-    private static final String COLUMN_CATEGORY_ID = "id";
-    private static final String COLUMN_CATEGORY_NAME = "name";
-    private static final String COLUMN_CATEGORY_DESCRIPTION = "description";
+        private static final String TABLE_CATEGORIES = "Categories";
+        private static final String COLUMN_CATEGORY_ID = "id";
+        private static final String COLUMN_CATEGORY_NAME = "name";
+        private static final String COLUMN_CATEGORY_DESCRIPTION = "description";
 
-    // SQL để tạo bảng expenses
-    private static final String CREATE_TABLE_EXPENSES =
-            "CREATE TABLE " + TABLE_EXPENSES + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_AMOUNT + " REAL, " +
-                    COLUMN_DESCRIPTION + " TEXT, " +
-                    COLUMN_DATE + " TEXT, " +
-                    COLUMN_CATEGORY + " TEXT, " +
-                    COLUMN_TYPE + " TEXT);";
+        // SQL để tạo bảng expenses
+        private static final String CREATE_TABLE_EXPENSES =
+                "CREATE TABLE " + TABLE_EXPENSES + " (" +
+                        COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_AMOUNT + " REAL, " +
+                        COLUMN_DESCRIPTION + " TEXT, " +
+                        COLUMN_USERNAME + " TEXT, " +
+                        COLUMN_DATE + " TEXT, " +
+                        COLUMN_CATEGORY + " TEXT, " +
+                        COLUMN_TYPE + " TEXT);";
 
 
-    // SQL để tạo bảng users
-    private static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
-            COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            COLUMN_FULL_NAME + " TEXT, " +
-            COLUMN_EMAIL + " TEXT, " +
-            COLUMN_USERNAME + " TEXT, " +
-            COLUMN_PASSWORD + " TEXT, " +
-            COLUMN_PHONE + " TEXT, " +
-            "is_logged_in INTEGER DEFAULT 0" + ")";
+        // SQL để tạo bảng users
+        private static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
+                COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_FULL_NAME + " TEXT, " +
+                COLUMN_EMAIL + " TEXT, " +
+                COLUMN_USERNAME + " TEXT, " +
+                COLUMN_PASSWORD + " TEXT, " +
+                COLUMN_PHONE + " TEXT, " +
+                "is_logged_in INTEGER DEFAULT 0, " +
+                COLUMN_BALANCE + " REAL DEFAULT 0" + ");";
 
-    private static final String CREATE_TABLE_CATEGORIES =
-            "CREATE TABLE " + TABLE_CATEGORIES + " (" +
-                    COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_CATEGORY_NAME + " TEXT NOT NULL, " +
-                    COLUMN_CATEGORY_DESCRIPTION + " TEXT);";
+        private static final String CREATE_TABLE_CATEGORIES =
+                "CREATE TABLE " + TABLE_CATEGORIES + " (" +
+                        COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_CATEGORY_NAME + " TEXT NOT NULL, " +
+                        COLUMN_CATEGORY_DESCRIPTION + " TEXT);";
 
-    public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_EXPENSES);
-        db.execSQL(CREATE_TABLE_USERS);
-        db.execSQL(CREATE_TABLE_CATEGORIES);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {  // Cập nhật số phiên bản để thêm cột is_logged_in
-            // Kiểm tra xem cột is_logged_in có tồn tại không, nếu không thì thêm vào
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN is_logged_in INTEGER DEFAULT 0");
+        public DatabaseHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
-        // Tiến hành tạo lại các bảng
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
-        onCreate(db);  // Tạo lại tất cả các bảng
-    }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(CREATE_TABLE_EXPENSES);
+            db.execSQL(CREATE_TABLE_USERS);
+            db.execSQL(CREATE_TABLE_CATEGORIES);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            Log.d("DatabaseHelper", "onUpgrade - oldVersion: " + oldVersion + " newVersion: " + newVersion);
+
+            if (oldVersion < 2) {
+                Log.d("DatabaseHelper", "Upgrading from version 1 to 2 - Adding is_logged_in column");
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN is_logged_in INTEGER DEFAULT 0");
+            }
+            if (oldVersion < 3) {
+                Log.d("DatabaseHelper", "Upgrading from version 2 to 3 - Adding username column in expenses table");
+                db.execSQL("ALTER TABLE " + TABLE_EXPENSES + " ADD COLUMN " + COLUMN_USERNAME + " TEXT;");
+            }
+            if (oldVersion < 4) {
+                Log.d("DatabaseHelper", "Upgrading from version 3 to 4 - Adding balance column");
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_BALANCE + " REAL DEFAULT 0");
+            }
+            if (oldVersion < 5) {
+                Log.d("DatabaseHelper", "Upgrading from version 4 to 5 - Dropping and recreating tables");
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSES);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+                onCreate(db); // Tạo lại tất cả các bảng với cấu trúc mới
+            }
+        }
     // Phương thức thêm chi tiêu vào cơ sở dữ liệu
-    public boolean insertExpense(double amount, String description, String date, String category) {
+    public boolean addExpense(String username, double amount, String description, String date, String category, String type) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME, username);
         values.put(COLUMN_AMOUNT, amount);
         values.put(COLUMN_DESCRIPTION, description);
         values.put(COLUMN_DATE, date);
         values.put(COLUMN_CATEGORY, category);
+        values.put(COLUMN_TYPE, type);
 
-        long result = db.insert(TABLE_EXPENSES, null, values);
-        db.close();
+        boolean isIncome = type.equalsIgnoreCase("Income");
+        boolean expenseInserted = db.insert("expenses", null, values) != -1;
 
-        return result != -1; // Trả về true nếu chèn thành công
+        if (expenseInserted) {
+            return updateBalance(username, amount, isIncome);
+        }
+        return false;
+    }
+
+    public boolean updateBalance(String username, double amount, boolean isIncome) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + COLUMN_BALANCE + " FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + "=?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") double currentBalance = cursor.getDouble(cursor.getColumnIndex(COLUMN_BALANCE));
+            cursor.close();
+
+            double updatedBalance = isIncome ? currentBalance + amount : currentBalance - amount;
+
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_BALANCE, updatedBalance);
+            int result = db.update(TABLE_USERS, values, COLUMN_USERNAME + "=?", new String[]{username});
+            return result > 0;
+        }
+        return false;
+    }
+
+    public Cursor getExpensesByUsername(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COLUMN_ID, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_DATE, COLUMN_TYPE, COLUMN_CATEGORY};
+        String selection = COLUMN_USERNAME + " = ?";
+        String[] selectionArgs = {username};
+
+        return db.query(TABLE_EXPENSES, columns, selection, selectionArgs, null, null, null);
     }
 
     // Phương thức thêm người dùng vào cơ sở dữ liệu
     public boolean insertUser(String fullName, String email, String username, String password, String phone) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_FULL_NAME, email);
+        contentValues.put(COLUMN_FULL_NAME, fullName);
         contentValues.put(COLUMN_EMAIL, email);
         contentValues.put(COLUMN_USERNAME, username);
         contentValues.put(COLUMN_PASSWORD, password);
@@ -144,12 +193,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // Phương thức lấy danh sách chi tiêu
-    public Cursor getAllExpenses() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT id AS _id, amount, description, date, category FROM " + TABLE_EXPENSES, null);
-    }
-
     // Phương thức lấy danh sách người dùng
     public Cursor getAllUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -161,45 +204,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT username FROM " + TABLE_USERS + " WHERE is_logged_in = 1";
         return db.rawQuery(query, null);
     }
-    public void setLoggedIn(String username, boolean isLoggedIn) {
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        // Đặt tất cả các tài khoản về không đăng nhập
-        if (isLoggedIn) {
-            ContentValues resetValues = new ContentValues();
-            resetValues.put("is_logged_in", 0);
-            db.update(TABLE_USERS, resetValues, null, null);
+    public void checkTableStructure() {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_USERS + ")", null);
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    @SuppressLint("Range") String columnName = cursor.getString(cursor.getColumnIndex("name"));
+                    Log.d("DatabaseInfo", "Column name: " + columnName);
+                }
+                cursor.close();
+            }
         }
 
-        // Cập nhật trạng thái cho tài khoản hiện tại
-        ContentValues values = new ContentValues();
-        values.put("is_logged_in", isLoggedIn ? 1 : 0);
-        db.update(TABLE_USERS, values, "username = ?", new String[]{username});
-
-        db.close();
     }
-    public boolean checkLogin(String username, String password) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " = ? AND " + COLUMN_PASSWORD + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{username, password});
-
-        boolean isValid = cursor.getCount() > 0;
-        cursor.close();
-        db.close();
-
-        return isValid;
-    }
-    public String getLoggedInUser() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT username FROM " + TABLE_USERS + " WHERE is_logged_in = 1";
-        Cursor cursor = db.rawQuery(query, null);
-
-        String loggedInUser = null;
-        if (cursor.moveToFirst()) {
-            loggedInUser = cursor.getString(0);
-        }
-        cursor.close();
-        db.close();
-        return loggedInUser;
-    }
-}
