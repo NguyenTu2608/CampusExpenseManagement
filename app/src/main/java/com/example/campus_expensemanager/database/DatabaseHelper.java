@@ -20,9 +20,9 @@ import com.example.campus_expensemanager.entities.User;
         private static final String TABLE_EXPENSES = "expenses";
         private static final String COLUMN_ID = "id";
         public static final String COLUMN_AMOUNT = "amount";
-        private static final String COLUMN_DESCRIPTION = "description";
+        public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_DATE = "date";
-        private static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_TYPE = "type";
         public static final String COLUMN_CATEGORY = "category";
 
         // Bảng users
@@ -143,14 +143,11 @@ import com.example.campus_expensemanager.entities.User;
         return false;
     }
 
-    public Cursor getExpensesByUsername(String username) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] columns = {COLUMN_ID, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_DATE, COLUMN_TYPE, COLUMN_CATEGORY};
-        String selection = COLUMN_USERNAME + " = ?";
-        String[] selectionArgs = {username};
-
-        return db.query(TABLE_EXPENSES, columns, selection, selectionArgs, null, null, null);
-    }
+        public Cursor getExpensesByUsername(String username) {
+            SQLiteDatabase db = this.getReadableDatabase();
+            String query = "SELECT * FROM " + TABLE_EXPENSES + " WHERE " + COLUMN_USERNAME + " = ?";
+            return db.rawQuery(query, new String[]{username});
+        }
 
     // Phương thức thêm người dùng vào cơ sở dữ liệu
     public boolean insertUser(String fullName, String email, String username, String password, String phone) {

@@ -50,7 +50,7 @@
 
             <!-- Nút Chỉnh sửa Card -->
             <Button
-                android:id="@+id/btn_Notification"
+                android:id="@+id/btn_Information"
                 android:layout_width="0dp"
                 android:textSize="10sp"
                 android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                 android:textColor="@android:color/white" />
 
             <Button
-                android:id="@+id/btn_edit_card"
+                android:id="@+id/btn_Notifacation"
                 android:layout_width="0dp"
                 android:textSize="10sp"
                 android:layout_weight="1"

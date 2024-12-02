@@ -53,8 +53,12 @@ public class AddExpenseFragment extends Fragment {
 
 
         btnDisplay.setOnClickListener(v -> {
+            DisplayExpenseFragment displayExpenseFragment = new DisplayExpenseFragment();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, new DisplayExpenseFragment());
+            Bundle bundle = new Bundle();
+            bundle.putString("username", username); // Truyền username
+            displayExpenseFragment.setArguments(bundle);
+            transaction.replace(R.id.fragment_container, displayExpenseFragment); // R.id.fragment_container là container của Fragment trong activity
             transaction.addToBackStack(null);
             transaction.commit();
         });

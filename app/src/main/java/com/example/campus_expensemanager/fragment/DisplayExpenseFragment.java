@@ -42,33 +42,42 @@ public class DisplayExpenseFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_display_expense, container, false);
 
-        recyclerView = view.findViewById(R.id.rv_expenses);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Lấy username từ Bundle hoặc SharedPreferences
+        // Nhận username từ Bundle nếu có
         if (getArguments() != null) {
             username = getArguments().getString("username");
         }
 
-        // Lấy danh sách chi phí của người dùng và hiển thị
+        // Khởi tạo RecyclerView
+        recyclerView = view.findViewById(R.id.rv_expenses);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Hiển thị chi tiêu của người dùng
         displayUserExpenses(username);
 
         return view;
     }
 
+    // Hàm để hiển thị chi tiêu của người dùng từ cơ sở dữ liệu
     private void displayUserExpenses(String username) {
+        if (username == null || username.isEmpty()) {
+            Toast.makeText(getContext(), "Username is null or empty", Toast.LENGTH_SHORT).show();
+            return; // Dừng phương thức nếu username không hợp lệ
+        }
+
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         Cursor cursor = dbHelper.getExpensesByUsername(username);
 
         if (cursor != null && cursor.moveToFirst()) {
             List<Expense> expenses = new ArrayList<>();
             do {
-                @SuppressLint("Range") int amount = cursor.getInt(cursor.getColumnIndex(COLUMN_AMOUNT));
-                @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
-                @SuppressLint("Range") String date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE));
-                @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(COLUMN_TYPE));
-                @SuppressLint("Range") String category = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY));
+                // Lấy dữ liệu từ cursor
+                @SuppressLint("Range") int amount = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_AMOUNT));
+                @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DESCRIPTION));
+                @SuppressLint("Range") String date = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE));
+                @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_TYPE));
+                @SuppressLint("Range") String category = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY));
 
+                // Thêm chi tiêu vào danh sách
                 expenses.add(new Expense(amount, description, date, type, category));
             } while (cursor.moveToNext());
 

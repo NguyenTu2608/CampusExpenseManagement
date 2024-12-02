@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campus_expensemanager.R;
@@ -30,11 +31,27 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     @Override
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
         Expense expense = expenses.get(position);
-        holder.amount.setText(String.valueOf(expense.getAmount()));
-        holder.description.setText(expense.getDescription());
-        holder.date.setText(expense.getDate());
-        holder.type.setText(expense.getType());
-        holder.category.setText(expense.getCategory());
+        String descriptionText = "Description: " + expense.getDescription();
+        String dateText = "Date: " + expense.getDate();
+        String typeText = "Type: " + expense.getType();
+        String categoryText = "Category: " + expense.getCategory();
+
+        int amount = expense.getAmount();
+        if (expense.getType().equals("Income")) {
+            // Nếu là income (tiền vào), màu xanh lá cây
+            holder.amount.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.green));
+        } else {
+            // Nếu là expense (tiền chi tiêu), màu đỏ
+            holder.amount.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.red));
+        }
+
+        holder.description.setText(descriptionText);
+        holder.amount.setText(String.format("Amount : %,d", amount));
+        holder.date.setText(dateText);
+        holder.type.setText(typeText);
+        holder.category.setText(categoryText);
+
+
     }
 
     @Override
