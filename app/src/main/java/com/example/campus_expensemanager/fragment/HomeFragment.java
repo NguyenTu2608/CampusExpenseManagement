@@ -21,6 +21,7 @@ import com.example.campus_expensemanager.activity.CategoryAdapter;
 import com.example.campus_expensemanager.activity.HomeActivity;
 import com.example.campus_expensemanager.activity.MainActivity;
 import com.example.campus_expensemanager.database.DatabaseHelper;
+import com.example.campus_expensemanager.entities.Category;
 import com.example.campus_expensemanager.entities.Expense;
 import com.example.campus_expensemanager.entities.User;
 
@@ -32,22 +33,37 @@ public class HomeFragment extends Fragment {
     private TextView tvName, tvFullName, tvBalance;
     private String username;
     private Button btnAddExpense, btnDisplayExpenses, btnLogout, btnInformation, btnNotification, btnAddCategory;
-    private List<Expense> allExpense;
-    private RecyclerView rvCategories, rvExpenses;
+    private List<Category> categoryList;
+    private RecyclerView recyclerView;
+    private CategoryAdapter categoryAdapter;
+    private DatabaseHelper databaseHelper;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+
+        databaseHelper = new DatabaseHelper(requireContext());
         tvName = view.findViewById(R.id.tv_name);
+
         tvFullName = view.findViewById(R.id.tv_full_name);
+
         tvBalance = view.findViewById(R.id.tv_balance);
+
         btnAddExpense = view.findViewById(R.id.btn_add_expense);
+
         btnDisplayExpenses = view.findViewById(R.id.btn_display_expenses);
+
         btnInformation = view.findViewById(R.id.btn_Information);
+
         btnLogout = view.findViewById(R.id.btn_logout);
+
         btnNotification = view.findViewById(R.id.btn_Notifacation);
+
+        recyclerView = view.findViewById(R.id.rv_categories);
+
         btnAddCategory = view.findViewById(R.id.btn_add_category);
         // Lấy username từ Bundle truyền vào
         if (getArguments() != null) {
@@ -78,11 +94,26 @@ public class HomeFragment extends Fragment {
             openDisplayExpensesScreen();
         });
         btnLogout.setOnClickListener(v -> logout());
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        categoryAdapter = new CategoryAdapter(requireContext(), new ArrayList<>());
+        recyclerView.setAdapter(categoryAdapter);
+
+        updateCategoryList();
+
         // Gọi phương thức cập nhật UI
         updateUI();
-
-
         return view;
+    }
+
+    public void updateCategoryList() {
+        // Lấy danh sách category từ cơ sở dữ liệu
+        categoryList = databaseHelper.getCategoriesByUsername(username);
+
+        // Cập nhật dữ liệu cho RecyclerView
+        if (categoryAdapter != null) {
+            categoryAdapter.setCategoryList(categoryList); // Cập nhật danh sách trong adapter
+        }
     }
 
     private void logout() {
@@ -179,6 +210,7 @@ public class HomeFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
 
 
 

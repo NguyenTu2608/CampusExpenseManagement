@@ -124,6 +124,7 @@
                 android:id="@+id/btn_add_category"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:textSize="13sp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="Add Category"
@@ -131,14 +132,27 @@
                 />
 
 
-            <!-- Nút Chỉnh sửa Danh Mục -->
             <Button
-                android:id="@+id/btn_display_category"
+                android:id="@+id/btn_add_expense"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:textSize="13sp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Display Category"
+                android:text="Add Expense"
+                android:textColor="@android:color/white"
+                />
+
+
+            <!-- Nút Chỉnh sửa Danh Mục -->
+            <Button
+                android:id="@+id/btn_display_expenses"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="13sp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Display expense"
                 android:textColor="@android:color/white"
                 />
         </LinearLayout>
@@ -383,27 +397,7 @@
             android:layout_margin="10dp">
 
 
-            <Button
-                android:id="@+id/btn_add_expense"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Add Expense"
-                android:textColor="@android:color/white"
-                />
 
-
-            <!-- Nút Chỉnh sửa Danh Mục -->
-            <Button
-                android:id="@+id/btn_display_expenses"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Display expense"
-                android:textColor="@android:color/white"
-                />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

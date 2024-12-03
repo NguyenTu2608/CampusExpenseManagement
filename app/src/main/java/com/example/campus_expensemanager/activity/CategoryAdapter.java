@@ -1,5 +1,6 @@
 package com.example.campus_expensemanager.activity;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,57 +11,68 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campus_expensemanager.R;
+import com.example.campus_expensemanager.entities.Category;
 
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
-    private List<String> categories;
-    private OnCategoryClickListener listener;
 
-    public CategoryAdapter(List<String> categories, OnCategoryClickListener listener) {
-        this.categories = categories;
-        this.listener = listener;
+    private Context context;
+    private List<Category> categoryList;
+
+    public CategoryAdapter(Context context, List<Category> categoryList) {
+        this.context = context;
+        this.categoryList = categoryList;
+    }
+
+    public void setCategoryList(List<Category> categoryList) {
+        this.categoryList = categoryList;
+        notifyDataSetChanged(); // Notify the adapter to update the RecyclerView
     }
 
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_expense_category, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_category, parent, false);
         return new CategoryViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
-        String category = categories.get(position);
-        holder.categoryName.setText(category);
+        // Get the category at the current position
+        Category category = categoryList.get(position);
 
-        // Xử lý sự kiện click vào hình ảnh category
-        holder.categoryImage.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onCategoryClick(category);
-            }
-        });
+        // Set the category name, amount, and date in the respective TextViews
+        holder.itemName.setText(category.getName()); // Assuming 'getName()' returns the category name
+        holder.itemAmount.setText("Amount: " + category.getAmount()); // Assuming 'getAmount()' returns the amount
+        holder.itemDate.setText(category.getDateCreated()); // Assuming 'getDate()' returns the date
+        if (category.getAmount() < 0) {
+            // If amount is negative, set the expense image (for example, a red or negative icon)
+            holder.itemImage.setImageResource(R.drawable.ic_expense);
+        } else {
+            // If amount is positive, set the income image (for example, a green or positive icon)
+            holder.itemImage.setImageResource(R.drawable.item7);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return categories.size();
+        return categoryList.size();
     }
 
     public static class CategoryViewHolder extends RecyclerView.ViewHolder {
-        TextView categoryName;
-        ImageView categoryImage;
+        // Declare the views
+        TextView itemName, itemAmount, itemDate;
+        ImageView itemImage; // You can add an ImageView to display an icon for the category if needed
 
-        public CategoryViewHolder(@NonNull View itemView) {
+        public CategoryViewHolder(View itemView) {
             super(itemView);
-            categoryName = itemView.findViewById(R.id.expense_name);
-//            categoryImage = itemView.findViewById(R.id.category_image); // Hình ảnh trong item layout
+            // Initialize the views
+            itemName = itemView.findViewById(R.id.item_Title);
+            itemAmount = itemView.findViewById(R.id.item_amount_display);
+            itemDate = itemView.findViewById(R.id.item_time);
+            itemImage = itemView.findViewById(R.id.ic_expense);
         }
-    }
-
-    public interface OnCategoryClickListener {
-        void onCategoryClick(String category);
     }
 }
 

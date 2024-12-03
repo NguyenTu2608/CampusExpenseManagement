@@ -18,7 +18,7 @@ import com.example.campus_expensemanager.database.DatabaseHelper;
 public class AddCategoryFragment extends Fragment {
 
     private DatabaseHelper dbHelper;
-    private EditText etCategoryName, etCategoryDescription;
+    private EditText etCategoryName, etCategoryDescription, etCategoryDate;
     private Button btnAdd;
     private String username;
 
@@ -33,6 +33,7 @@ public class AddCategoryFragment extends Fragment {
         // Initialize views
         etCategoryName = view.findViewById(R.id.et_category_name);
         etCategoryDescription = view.findViewById(R.id.et_category_description);
+        etCategoryDate = view.findViewById(R.id.et_category_date);
         btnAdd = view.findViewById(R.id.btn_add);
 
         if (getArguments() != null) {
@@ -48,8 +49,9 @@ public class AddCategoryFragment extends Fragment {
     private void addCategory() {
         String name = etCategoryName.getText().toString().trim();
         String description = etCategoryDescription.getText().toString().trim();
+        String date = etCategoryDate.getText().toString().trim();  // Optional date field
 
-        // Kiểm tra nếu tên hoặc mô tả bị trống
+        // Validate if category name and description are provided
         if (name.isEmpty()) {
             Toast.makeText(getActivity(), "Category name cannot be empty", Toast.LENGTH_SHORT).show();
             return;
@@ -59,13 +61,23 @@ public class AddCategoryFragment extends Fragment {
             return;
         }
 
-        boolean isInserted = dbHelper.addCategory(username, name, description);
+        // If date is required, check if it is empty
+        if (date.isEmpty()) {
+            Toast.makeText(getActivity(), "Please enter a date for the category", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Add category to database
+        boolean isInserted = dbHelper.addCategory(username, name, description, date);
 
         if (isInserted) {
-            Toast.makeText(getActivity(), "Category added", Toast.LENGTH_SHORT).show();
-            // Xóa dữ liệu trong các ô nhập liệu sau khi thêm thành công
+            Toast.makeText(getActivity(), "Category added successfully", Toast.LENGTH_SHORT).show();
+            // Clear the input fields after successful addition
             etCategoryName.setText("");
             etCategoryDescription.setText("");
+            etCategoryDate.setText(""); // Clear date field if it's added
+            // Go back to the previous fragment
+            getParentFragmentManager().popBackStack();
         } else {
             Toast.makeText(getActivity(), "Failed to add category", Toast.LENGTH_SHORT).show();
         }

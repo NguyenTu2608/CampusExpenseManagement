@@ -73,19 +73,19 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             category = itemView.findViewById(R.id.tv_category);
         }
     }
-    public static class CategoryViewHolder extends RecyclerView.ViewHolder {
-        TextView categoryName;
-
-        public CategoryViewHolder(@NonNull View itemView) {
-            super(itemView);
-            categoryName = itemView.findViewById(R.id.expense_name);
-        }
-    }
-    public void updateExpenses(List<Expense> newExpenses) {
-        this.expenses.clear();
-        this.expenses.addAll(newExpenses);
-        notifyDataSetChanged();
-    }
+//    public static class CategoryViewHolder extends RecyclerView.ViewHolder {
+//        TextView categoryName;
+//
+//        public CategoryViewHolder(@NonNull View itemView) {
+//            super(itemView);
+//            categoryName = itemView.findViewById(R.id.expense_name);   }
+//    }
+//
+//    public void updateExpenses(List<Expense> newExpenses) {
+//        this.expenses.clear();
+//        this.expenses.addAll(newExpenses);
+//        notifyDataSetChanged();
+//    }
 
 
 }

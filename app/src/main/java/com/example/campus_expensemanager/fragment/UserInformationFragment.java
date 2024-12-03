@@ -51,7 +51,7 @@ public class UserInformationFragment extends Fragment {
         return view;
     }
 
-    @SuppressLint("Range")
+    @SuppressLint({"Range", "SetTextI18n"})
     private void updateUI() {
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         Cursor user = dbHelper.getUserByUsername(username);

@@ -8,13 +8,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.campus_expensemanager.entities.Category;
 import com.example.campus_expensemanager.entities.User;
 
-    public class DatabaseHelper extends SQLiteOpenHelper {
+import java.util.ArrayList;
+import java.util.List;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Các hằng số cơ sở dữ liệu và tên bảng
-        private static final String DATABASE_NAME = "campus_expense_manager.db";
-        private static final int DATABASE_VERSION = 6;
+        public static final String DATABASE_NAME = "campus_expense_manager.db";
+        private static final int DATABASE_VERSION = 8;
 
         // Bảng expenses
         private static final String TABLE_EXPENSES = "expenses";
@@ -40,6 +44,7 @@ import com.example.campus_expensemanager.entities.User;
         private static final String COLUMN_CATEGORY_ID = "id";
         private static final String COLUMN_CATEGORY_NAME = "name";
         private static final String COLUMN_CATEGORY_DESCRIPTION = "description";
+        private static final String COLUMN_DATE_CREATED = "date";
 
         // SQL để tạo bảng expenses
         private static final String CREATE_TABLE_EXPENSES =
@@ -69,12 +74,13 @@ import com.example.campus_expensemanager.entities.User;
                         COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_CATEGORY_NAME + " TEXT NOT NULL, " +
                         COLUMN_CATEGORY_DESCRIPTION + " TEXT, " +
+                        COLUMN_DATE_CREATED + " TEXT, " +
+                        COLUMN_BALANCE + " REAL DEFAULT 0," +
                         COLUMN_USERNAME + " TEXT); ";
 
         public DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
-
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(CREATE_TABLE_EXPENSES);
@@ -103,6 +109,15 @@ import com.example.campus_expensemanager.entities.User;
                 db.execSQL("ALTER TABLE " + TABLE_CATEGORIES + " ADD COLUMN " + COLUMN_USERNAME + " TEXT;");
             }
             if (oldVersion < 6) {
+                Log.d("DatabaseHelper", "Upgrading from version 4 to 5 - Adding username column in categories table");
+                db.execSQL("ALTER TABLE " + TABLE_CATEGORIES + " ADD COLUMN " + COLUMN_DATE_CREATED + " TEXT;");
+
+            }
+            if(oldVersion < 7)
+            {
+                db.execSQL("ALTER TABLE " + TABLE_CATEGORIES + " ADD COLUMN " + COLUMN_BALANCE + " REAL DEFAULT 0");
+            }
+            if (oldVersion < 8) {
                 Log.d("DatabaseHelper", "Upgrading from version 5 to 6 - Dropping and recreating tables");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
@@ -169,15 +184,17 @@ import com.example.campus_expensemanager.entities.User;
         return result != -1; // Trả về true nếu thêm thành công
     }
 
-        public boolean addCategory(String username, String name, String description) {
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_USERNAME, username);
-            values.put(COLUMN_CATEGORY_NAME, name);
-            values.put(COLUMN_DESCRIPTION, description);
-            long result = db.insert("categories", null, values);
-            return result != -1; // Trả về true nếu thêm thành công
-        }
+    public boolean addCategory(String username, String name, String description, String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME, username);
+        values.put(COLUMN_CATEGORY_NAME, name);
+        values.put(COLUMN_DESCRIPTION, description);
+        values.put(COLUMN_DATE_CREATED, date);  // Thêm giá trị ngày vào ContentValues
+
+        long result = db.insert("categories", null, values);
+        return result != -1; // Trả về true nếu thêm thành công
+    }
 
     public boolean checkUserCredentials(String username, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -222,6 +239,25 @@ import com.example.campus_expensemanager.entities.User;
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT id AS _id, email, username, phone FROM " + TABLE_USERS, null);
     }
+    public List<Category> getCategoriesByUsername(String username) {
+        List<Category> categoryList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM Categories WHERE username = ?", new String[]{username});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME));
+                @SuppressLint("Range") double amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_BALANCE));
+                @SuppressLint("Range") String dateCreated = cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATED));
+
+                categoryList.add(new Category(name, amount, dateCreated));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return categoryList;
+    }
+
     public Cursor getCurrentUser() {
         SQLiteDatabase db = this.getReadableDatabase();
         // Cập nhật truy vấn để tìm người dùng đang đăng nhập
@@ -241,5 +277,11 @@ import com.example.campus_expensemanager.entities.User;
                 cursor.close();
             }
         }
+    public void deleteDatabase(Context context) {
+        context.deleteDatabase("campus_expense_manager.db");
     }
+    }
+
+
+
 
