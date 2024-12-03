@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.entities.Expense;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
@@ -35,6 +36,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         String dateText = "Date: " + expense.getDate();
         String typeText = "Type: " + expense.getType();
         String categoryText = "Category: " + expense.getCategory();
+
+
 
         int amount = expense.getAmount();
         if (expense.getType().equals("Income")) {
@@ -70,6 +73,21 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             category = itemView.findViewById(R.id.tv_category);
         }
     }
+    public static class CategoryViewHolder extends RecyclerView.ViewHolder {
+        TextView categoryName;
+
+        public CategoryViewHolder(@NonNull View itemView) {
+            super(itemView);
+            categoryName = itemView.findViewById(R.id.expense_name);
+        }
+    }
+    public void updateExpenses(List<Expense> newExpenses) {
+        this.expenses.clear();
+        this.expenses.addAll(newExpenses);
+        notifyDataSetChanged();
+    }
+
+
 }
 
 

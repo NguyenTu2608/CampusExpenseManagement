@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:id="@+id/tv_notification_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notification"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        android:paddingBottom="16dp" />
+
+    <!-- Nút hạn mức chi tiêu -->
+    <Button
+        android:id="@+id/btn_monthly_limit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hạn mức chi tiêu trong 1 tháng"
+        android:backgroundTint="@color/green"
+        android:textColor="@color/white"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Nút biểu đồ chi tiêu -->
+    <Button
+        android:id="@+id/btn_spending_chart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Biểu đồ chi tiêu theo ngày trong 1 tháng"
+        android:backgroundTint="@color/red"
+        android:textColor="@color/white"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Danh sách thông báo -->
+    <TextView
+        android:id="@+id/tv_notifications_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Các thông báo gần đây:"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Mỗi thông báo -->
+            <TextView
+                android:id="@+id/tv_notification_item_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông báo 1: Nội dung chi tiết..."
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:background="@drawable/notification_item_bg"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tv_notification_item_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông báo 2: Nội dung chi tiết..."
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:background="@drawable/notification_item_bg"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Add more items dynamically in your Fragment -->
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

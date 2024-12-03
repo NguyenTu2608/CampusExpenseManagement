@@ -14,7 +14,7 @@ import com.example.campus_expensemanager.entities.User;
 
         // Các hằng số cơ sở dữ liệu và tên bảng
         private static final String DATABASE_NAME = "campus_expense_manager.db";
-        private static final int DATABASE_VERSION = 5;
+        private static final int DATABASE_VERSION = 6;
 
         // Bảng expenses
         private static final String TABLE_EXPENSES = "expenses";
@@ -29,12 +29,13 @@ import com.example.campus_expensemanager.entities.User;
         private static final String TABLE_USERS = "users";
         private static final String COLUMN_USER_ID = "id";
         public static final String COLUMN_FULL_NAME = "fullName";
-        private static final String COLUMN_EMAIL = "email";
+        public static final String COLUMN_EMAIL = "email";
         public static final String COLUMN_USERNAME = "username";
-        private static final String COLUMN_PASSWORD = "password";
-        private static final String COLUMN_PHONE = "phone";
+        public static final String COLUMN_PASSWORD = "password";
+        public static final String COLUMN_PHONE = "phone";
         public static final String COLUMN_BALANCE = "balance";
 
+        // Bảng Categories
         private static final String TABLE_CATEGORIES = "Categories";
         private static final String COLUMN_CATEGORY_ID = "id";
         private static final String COLUMN_CATEGORY_NAME = "name";
@@ -67,7 +68,8 @@ import com.example.campus_expensemanager.entities.User;
                 "CREATE TABLE " + TABLE_CATEGORIES + " (" +
                         COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_CATEGORY_NAME + " TEXT NOT NULL, " +
-                        COLUMN_CATEGORY_DESCRIPTION + " TEXT);";
+                        COLUMN_CATEGORY_DESCRIPTION + " TEXT, " +
+                        COLUMN_USERNAME + " TEXT); ";
 
         public DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -97,7 +99,11 @@ import com.example.campus_expensemanager.entities.User;
                 db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_BALANCE + " REAL DEFAULT 0");
             }
             if (oldVersion < 5) {
-                Log.d("DatabaseHelper", "Upgrading from version 4 to 5 - Dropping and recreating tables");
+                Log.d("DatabaseHelper", "Upgrading from version 4 to 5 - Adding username column in categories table");
+                db.execSQL("ALTER TABLE " + TABLE_CATEGORIES + " ADD COLUMN " + COLUMN_USERNAME + " TEXT;");
+            }
+            if (oldVersion < 6) {
+                Log.d("DatabaseHelper", "Upgrading from version 5 to 6 - Dropping and recreating tables");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -163,6 +169,16 @@ import com.example.campus_expensemanager.entities.User;
         return result != -1; // Trả về true nếu thêm thành công
     }
 
+        public boolean addCategory(String username, String name, String description) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_USERNAME, username);
+            values.put(COLUMN_CATEGORY_NAME, name);
+            values.put(COLUMN_DESCRIPTION, description);
+            long result = db.insert("categories", null, values);
+            return result != -1; // Trả về true nếu thêm thành công
+        }
+
     public boolean checkUserCredentials(String username, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_USERS,
@@ -190,6 +206,17 @@ import com.example.campus_expensemanager.entities.User;
     }
 
 
+        public boolean updatePassword(String username, String newPassword) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_PASSWORD, newPassword);
+
+            int rowsAffected = db.update(TABLE_USERS, values, COLUMN_USERNAME + "=?", new String[]{username});
+            db.close();
+
+            return rowsAffected > 0;
+        }
+
     // Phương thức lấy danh sách người dùng
     public Cursor getAllUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -204,7 +231,7 @@ import com.example.campus_expensemanager.entities.User;
 
     public void checkTableStructure() {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_USERS + ")", null);
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_CATEGORIES + ")", null);
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -214,5 +241,5 @@ import com.example.campus_expensemanager.entities.User;
                 cursor.close();
             }
         }
-
     }
+

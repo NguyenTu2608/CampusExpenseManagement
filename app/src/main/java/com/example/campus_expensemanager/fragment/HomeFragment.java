@@ -13,18 +13,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.campus_expensemanager.R;
+import com.example.campus_expensemanager.activity.CategoryAdapter;
 import com.example.campus_expensemanager.activity.HomeActivity;
 import com.example.campus_expensemanager.activity.MainActivity;
 import com.example.campus_expensemanager.database.DatabaseHelper;
+import com.example.campus_expensemanager.entities.Expense;
 import com.example.campus_expensemanager.entities.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
     private TextView tvName, tvFullName, tvBalance;
     private String username;
-    private Button btnAddExpense, btnDisplayExpenses, btnLogout, btnInformation;
-
+    private Button btnAddExpense, btnDisplayExpenses, btnLogout, btnInformation, btnNotification, btnAddCategory;
+    private List<Expense> allExpense;
+    private RecyclerView rvCategories, rvExpenses;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -38,13 +47,24 @@ public class HomeFragment extends Fragment {
         btnDisplayExpenses = view.findViewById(R.id.btn_display_expenses);
         btnInformation = view.findViewById(R.id.btn_Information);
         btnLogout = view.findViewById(R.id.btn_logout);
+        btnNotification = view.findViewById(R.id.btn_Notifacation);
+        btnAddCategory = view.findViewById(R.id.btn_add_category);
         // Lấy username từ Bundle truyền vào
         if (getArguments() != null) {
             username = getArguments().getString("username");
         }
 
-        btnInformation.setOnClickListener(view1 -> {
+        btnInformation.setOnClickListener(v -> {
             ViewInformationScreen();
+        });
+
+        btnNotification.setOnClickListener(v -> {
+            ViewNotificationScreen();
+        });
+
+        btnAddCategory.setOnClickListener(v ->
+        {
+            openAddCategoryScreen();
         });
         // Xử lý sự kiện click cho nút Add Expense
         btnAddExpense.setOnClickListener(v -> {
@@ -61,6 +81,7 @@ public class HomeFragment extends Fragment {
         // Gọi phương thức cập nhật UI
         updateUI();
 
+
         return view;
     }
 
@@ -70,7 +91,6 @@ public class HomeFragment extends Fragment {
             getActivity().getSharedPreferences("user_prefs", getActivity().MODE_PRIVATE)
                     .edit().clear().apply();
         }
-
         // Quay về màn hình đăng nhập
         // Giả sử bạn có một LoginActivity để xử lý đăng nhập
         Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -78,6 +98,7 @@ public class HomeFragment extends Fragment {
         startActivity(intent);
         getActivity().finish(); // Kết thúc HomeActivity hoặc màn hình hiện tại
     }
+
 
     private void updateUI() {
         // Lấy dữ liệu người dùng từ cơ sở dữ liệu
@@ -110,6 +131,30 @@ public class HomeFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+    private void ViewNotificationScreen() {
+        // Giả sử bạn có một AddExpenseFragment hoặc Activity để thêm chi phí
+        NotificationFragment notificationFragment = new NotificationFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username); // Truyền username
+        notificationFragment.setArguments(bundle);
+        transaction.replace(R.id.fragment_container, notificationFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+
+    private void openAddCategoryScreen() {
+        // Giả sử bạn có một AddExpenseFragment hoặc Activity để thêm chi phí
+        AddCategoryFragment addCategoryFragment = new AddCategoryFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username); // Truyền username
+        addCategoryFragment.setArguments(bundle);
+        transaction.replace(R.id.fragment_container, addCategoryFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
     private void openAddExpenseScreen() {
         // Giả sử bạn có một AddExpenseFragment hoặc Activity để thêm chi phí
@@ -134,6 +179,8 @@ public class HomeFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+
 
 }
 
