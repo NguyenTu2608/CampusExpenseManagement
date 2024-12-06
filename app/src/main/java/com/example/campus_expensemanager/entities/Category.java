@@ -1,12 +1,13 @@
 package com.example.campus_expensemanager.entities;
 
 public class Category {
+
     private String name;
     private double amount;
     private String dateCreated;
 
 
-    public Category(String name, double amount, String dateCreated) {
+    public Category( String name, double amount, String dateCreated) {
         this.name = name;
         this.amount = amount;
         this.dateCreated = dateCreated;

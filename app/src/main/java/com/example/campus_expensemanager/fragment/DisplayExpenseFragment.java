@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -34,6 +36,8 @@ import java.util.List;
 
 public class DisplayExpenseFragment extends Fragment {
     private RecyclerView recyclerView;
+    private EditText searchEditText;
+    private Button btnSearchAmount, btnSearchType, btnSearchDate, btnSearchCategory;
     private ExpenseAdapter adapter;
     private String username;
 
@@ -42,10 +46,16 @@ public class DisplayExpenseFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_display_expense, container, false);
 
+        btnSearchAmount = view.findViewById(R.id.btn_search_amount);
+        btnSearchType = view.findViewById(R.id.btn_search_type);
+        btnSearchDate = view.findViewById(R.id.btn_search_date);
+        btnSearchCategory = view.findViewById(R.id.btn_search_category);
         // Nhận username từ Bundle nếu có
         if (getArguments() != null) {
             username = getArguments().getString("username");
         }
+
+
 
         // Khởi tạo RecyclerView
         recyclerView = view.findViewById(R.id.rv_expenses);
@@ -53,6 +63,18 @@ public class DisplayExpenseFragment extends Fragment {
 
         // Hiển thị chi tiêu của người dùng
         displayUserExpenses(username);
+
+        btnSearchAmount.setOnClickListener(v -> {
+            String query = btnSearchAmount.getText().toString();
+            if (!query.isEmpty()) {
+                searchExpenses(COLUMN_AMOUNT, query); // Truyền đúng giá trị vào hàm tìm kiếm
+            } else {
+                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnSearchType.setOnClickListener(v -> searchExpenses("type", btnSearchType.getText().toString()));
+        btnSearchDate.setOnClickListener(v -> searchExpenses("date", btnSearchDate.getText().toString()));
+        btnSearchCategory.setOnClickListener(v -> searchExpenses("category", btnSearchCategory.getText().toString()));
 
         return view;
     }
@@ -84,6 +106,33 @@ public class DisplayExpenseFragment extends Fragment {
             // Thiết lập adapter cho RecyclerView
             adapter = new ExpenseAdapter(expenses);
             recyclerView.setAdapter(adapter);
+        }
+    }
+    private void searchExpenses(String column, String query) {
+        if (query.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+        Cursor cursor = dbHelper.searchExpensesByCriteria(username, column, query);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            List<Expense> expenses = new ArrayList<>();
+            do {
+                @SuppressLint("Range") int amount = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_AMOUNT));
+                @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DESCRIPTION));
+                @SuppressLint("Range") String date = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE));
+                @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_TYPE));
+                @SuppressLint("Range") String category = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY));
+
+                expenses.add(new Expense(amount, description, date, type, category));
+            } while (cursor.moveToNext());
+
+            // Cập nhật RecyclerView với kết quả tìm kiếm
+            adapter.updateData(expenses);
+        } else {
+            Toast.makeText(getContext(), "No results found", Toast.LENGTH_SHORT).show();
         }
     }
 }

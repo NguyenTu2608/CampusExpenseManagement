@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.campus_expensemanager.entities.Category;
+import com.example.campus_expensemanager.entities.Expense;
 import com.example.campus_expensemanager.entities.User;
 
 import java.util.ArrayList;
@@ -111,7 +112,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (oldVersion < 6) {
                 Log.d("DatabaseHelper", "Upgrading from version 4 to 5 - Adding username column in categories table");
                 db.execSQL("ALTER TABLE " + TABLE_CATEGORIES + " ADD COLUMN " + COLUMN_DATE_CREATED + " TEXT;");
-
             }
             if(oldVersion < 7)
             {
@@ -222,6 +222,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public List<String> getCategoriesByUser(String username) {
+        List<String> categories = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Truy vấn danh sách category theo username
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_CATEGORY_NAME +
+                        " FROM " + TABLE_CATEGORIES +
+                        " WHERE " + COLUMN_USERNAME + " = ?",
+                new String[]{username});
+
+        if (cursor.moveToFirst()) {
+            do {
+                categories.add(cursor.getString(0)); // Lấy giá trị từ cột COLUMN_CATEGORY_NAME
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return categories;
+    }
+    public boolean updateCategoryBalance(String categoryName, String type, double amount) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Lấy balance hiện tại của category
+        String query = "SELECT " + COLUMN_BALANCE + " FROM " + TABLE_CATEGORIES +
+                " WHERE " + COLUMN_CATEGORY_NAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{categoryName});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") double currentBalance = cursor.getDouble(cursor.getColumnIndex(COLUMN_BALANCE));
+            cursor.close();
+
+            // Tính toán balance mới
+            double newBalance;
+            if (type.equalsIgnoreCase("Income")) {
+                newBalance = currentBalance + amount;
+            } else { // Expense
+                newBalance = currentBalance - amount;
+            }
+
+            // Cập nhật balance trong bảng categories
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_BALANCE, newBalance);
+
+            int rowsUpdated = db.update(TABLE_CATEGORIES, values, COLUMN_CATEGORY_NAME + " = ?",
+                    new String[]{categoryName});
+
+            return rowsUpdated > 0; // Trả về true nếu cập nhật thành công
+        }
+
+        return false; // Trả về false nếu không tìm thấy category
+    }
 
         public boolean updatePassword(String username, String newPassword) {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -256,6 +306,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         db.close();
         return categoryList;
+    }
+
+
+    public Cursor searchExpensesByCriteria(String username, String column, String query) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = "type LIKE ?";
+        String[] selectionArgs = new String[]{"%" + COLUMN_TYPE + "%"};  // Tìm kiếm theo loại chi tiêu
+        return db.query(TABLE_EXPENSES, null, selection, selectionArgs, null, null, null);
     }
 
     public Cursor getCurrentUser() {

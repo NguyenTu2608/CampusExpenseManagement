@@ -17,6 +17,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.database.DatabaseHelper;
 
+import java.util.List;
+
 public class AddExpenseFragment extends Fragment {
 
     private DatabaseHelper dbHelper;
@@ -46,6 +48,7 @@ public class AddExpenseFragment extends Fragment {
 
         if (getArguments() != null) {
             username = getArguments().getString("username");
+            loadCategoriesForUser(username);
         }
 
         Button addButton = view.findViewById(R.id.addButton);
@@ -67,7 +70,6 @@ public class AddExpenseFragment extends Fragment {
                 R.array.expense_types, android.R.layout.simple_spinner_item);
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(typeAdapter);
-
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -76,15 +78,30 @@ public class AddExpenseFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                selectedType = "Expense";
+                selectedType = "Expense"; // Giá trị mặc định nếu không chọn gì
             }
         });
 
-        // Setup Spinner
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.expense_categories, android.R.layout.simple_spinner_item);
+
+        // Add expense action
+        addButton.setOnClickListener(v -> addExpense());
+
+        return view;
+    }
+
+    private void loadCategoriesForUser(String username) {
+        List<String> categories = dbHelper.getCategoriesByUser(username);
+        if (categories.isEmpty()) {
+//            categories.add("Other"); // Nếu không có Category nào, thêm "Other" làm mặc định
+        }
+
+        // Tạo adapter cho Spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
+
+        // Gán sự kiện chọn category
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -93,26 +110,39 @@ public class AddExpenseFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                selectedCategory = "Other";
+                selectedCategory = "Other"; // Giá trị mặc định nếu không chọn gì
             }
         });
-
-        // Add expense action
-        addButton.setOnClickListener(v -> addExpense());
-
-        return view;
     }
 
     private void addExpense() {
+        if (categorySpinner.getAdapter() == null || categorySpinner.getCount() == 0) {
+            Toast.makeText(getContext(), "Please add a category before adding expenses.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         try {
             double amount = Double.parseDouble(amountEditText.getText().toString().trim());
             String description = descriptionEditText.getText().toString().trim();
             String date = dateEditText.getText().toString().trim();
-
-            
+            if (amount <= 0 || description.isEmpty() || date.isEmpty()) {
+                Toast.makeText(getContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             boolean inserted = dbHelper.addExpense(username, amount, description, date, selectedCategory, selectedType);
             if (inserted) {
-                Toast.makeText(getContext(), "Expense added", Toast.LENGTH_SHORT).show();
+                boolean updated = dbHelper.updateCategoryBalance(selectedCategory, selectedType, amount);
+                if (updated) {
+                    Toast.makeText(getContext(), "Expense added and category balance updated", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Error updating category balance", Toast.LENGTH_SHORT).show();
+                }
+
+                // Xóa dữ liệu sau khi thêm thành công
+                amountEditText.setText("");
+                descriptionEditText.setText("");
+                dateEditText.setText("");
+                categorySpinner.setSelection(0);
+                typeSpinner.setSelection(0);
             } else {
                 Toast.makeText(getContext(), "Error adding expense", Toast.LENGTH_SHORT).show();
             }

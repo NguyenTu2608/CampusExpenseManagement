@@ -4,12 +4,6 @@
     android:orientation="vertical"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/itemDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="#000" />
 
     <TextView
         android:id="@+id/itemAmount"
@@ -17,6 +11,13 @@
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:textColor="#4CAF50" />
+
+    <TextView
+        android:id="@+id/itemDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000" />
 
     <TextView
         android:id="@+id/itemDate"

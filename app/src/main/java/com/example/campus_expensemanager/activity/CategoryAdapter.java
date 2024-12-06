@@ -13,22 +13,41 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.entities.Category;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
     private Context context;
     private List<Category> categoryList;
+    private List<Category> filteredList;
+
 
     public CategoryAdapter(Context context, List<Category> categoryList) {
         this.context = context;
         this.categoryList = categoryList;
+        this.filteredList = new ArrayList<>(categoryList);
     }
 
     public void setCategoryList(List<Category> categoryList) {
         this.categoryList = categoryList;
         notifyDataSetChanged(); // Notify the adapter to update the RecyclerView
     }
+
+//    public void filter(String category, String type, String amount, String date) {
+//        filteredList.clear();
+//        for (Category item : categoryList) {
+//            boolean matchesCategory = category.isEmpty() || item.getName().toLowerCase().contains(category.toLowerCase());
+//            boolean matchesType = type.isEmpty() || item.getType().toLowerCase().contains(type.toLowerCase());
+//            boolean matchesAmount = amount.isEmpty() || String.valueOf(item.getAmount()).equals(amount);
+//            boolean matchesDate = date.isEmpty() || item.getDate().equals(date);
+//
+//            if (matchesCategory && matchesType && matchesAmount && matchesDate) {
+//                filteredList.add(item);
+//            }
+//        }
+//        notifyDataSetChanged();
+//    }
 
     @NonNull
     @Override

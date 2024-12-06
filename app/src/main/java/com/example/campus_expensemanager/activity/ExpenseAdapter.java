@@ -32,13 +32,6 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     @Override
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
         Expense expense = expenses.get(position);
-        String descriptionText = "Description: " + expense.getDescription();
-        String dateText = "Date: " + expense.getDate();
-        String typeText = "Type: " + expense.getType();
-        String categoryText = "Category: " + expense.getCategory();
-
-
-
         int amount = expense.getAmount();
         if (expense.getType().equals("Income")) {
             // Nếu là income (tiền vào), màu xanh lá cây
@@ -48,11 +41,20 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             holder.amount.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.red));
         }
 
-        holder.description.setText(descriptionText);
         holder.amount.setText(String.format("Amount : %,d", amount));
+        String descriptionText = "Description: " + expense.getDescription();
+        String dateText = "Date: " + expense.getDate();
+        String typeText = "Type: " + expense.getType();
+        String categoryText = "Category: " + expense.getCategory();
+
+
+
+        holder.description.setText(descriptionText);
         holder.date.setText(dateText);
         holder.type.setText(typeText);
         holder.category.setText(categoryText);
+
+
 
 
     }
@@ -72,6 +74,11 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             type = itemView.findViewById(R.id.tv_type);
             category = itemView.findViewById(R.id.tv_category);
         }
+    }
+    public void updateData(List<Expense> newExpenses) {
+        expenses.clear();
+        expenses.addAll(newExpenses);
+        notifyDataSetChanged();
     }
 //    public static class CategoryViewHolder extends RecyclerView.ViewHolder {
 //        TextView categoryName;
