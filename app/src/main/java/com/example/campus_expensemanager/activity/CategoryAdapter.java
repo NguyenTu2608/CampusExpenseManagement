@@ -42,7 +42,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 //            boolean matchesAmount = amount.isEmpty() || String.valueOf(item.getAmount()).equals(amount);
 //            boolean matchesDate = date.isEmpty() || item.getDate().equals(date);
 //
-//            if (matchesCategory && matchesType && matchesAmount && matchesDate) {
+//            if (matchesCategory &&  matchesAmount) {
 //                filteredList.add(item);
 //            }
 //        }

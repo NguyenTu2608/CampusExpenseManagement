@@ -5,6 +5,8 @@ public class Category {
     private String name;
     private double amount;
     private String dateCreated;
+    private String type;
+    private String date;
 
 
     public Category( String name, double amount, String dateCreated) {

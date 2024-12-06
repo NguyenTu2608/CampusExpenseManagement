@@ -310,10 +310,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public Cursor searchExpensesByCriteria(String username, String column, String query) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selection = "type LIKE ?";
-        String[] selectionArgs = new String[]{"%" + COLUMN_TYPE + "%"};  // Tìm kiếm theo loại chi tiêu
-        return db.query(TABLE_EXPENSES, null, selection, selectionArgs, null, null, null);
+        SQLiteDatabase db = getReadableDatabase();
+        String queryString = "SELECT * FROM expenses WHERE username = ? AND " + column + " LIKE ?";
+        String[] selectionArgs = { username, "%" + query + "%" };
+        return db.rawQuery(queryString, selectionArgs);
     }
 
     public Cursor getCurrentUser() {

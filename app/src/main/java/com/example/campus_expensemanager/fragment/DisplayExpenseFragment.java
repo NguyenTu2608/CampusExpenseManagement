@@ -11,6 +11,7 @@ import static com.example.campus_expensemanager.database.DatabaseHelper.COLUMN_D
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,7 @@ public class DisplayExpenseFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_display_expense, container, false);
 
+        searchEditText = view.findViewById(R.id.searchEditText);
         btnSearchAmount = view.findViewById(R.id.btn_search_amount);
         btnSearchType = view.findViewById(R.id.btn_search_type);
         btnSearchDate = view.findViewById(R.id.btn_search_date);
@@ -55,8 +57,6 @@ public class DisplayExpenseFragment extends Fragment {
             username = getArguments().getString("username");
         }
 
-
-
         // Khởi tạo RecyclerView
         recyclerView = view.findViewById(R.id.rv_expenses);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -65,16 +65,43 @@ public class DisplayExpenseFragment extends Fragment {
         displayUserExpenses(username);
 
         btnSearchAmount.setOnClickListener(v -> {
-            String query = btnSearchAmount.getText().toString();
+            String query = searchEditText.getText().toString();
             if (!query.isEmpty()) {
                 searchExpenses(COLUMN_AMOUNT, query); // Truyền đúng giá trị vào hàm tìm kiếm
             } else {
+                displayUserExpenses(username);
                 Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
             }
         });
-        btnSearchType.setOnClickListener(v -> searchExpenses("type", btnSearchType.getText().toString()));
-        btnSearchDate.setOnClickListener(v -> searchExpenses("date", btnSearchDate.getText().toString()));
-        btnSearchCategory.setOnClickListener(v -> searchExpenses("category", btnSearchCategory.getText().toString()));
+
+        btnSearchType.setOnClickListener(v -> {
+            String query = searchEditText.getText().toString();
+            if (!query.isEmpty()) {
+                searchExpenses(COLUMN_TYPE, query); // Truyền đúng giá trị vào hàm tìm kiếm
+            } else {
+                displayUserExpenses(username);
+                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnSearchDate.setOnClickListener(v -> {
+            String query = searchEditText.getText().toString();
+            if (!query.isEmpty()) {
+                searchExpenses(COLUMN_DATE, query); // Truyền đúng giá trị vào hàm tìm kiếm
+            } else {
+                displayUserExpenses(username);
+                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnSearchCategory.setOnClickListener(v -> {
+            String query = searchEditText.getText().toString();
+            if (!query.isEmpty()) {
+                searchExpenses(COLUMN_CATEGORY, query); // Truyền đúng giá trị vào hàm tìm kiếm
+            } else {
+                displayUserExpenses(username);
+                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }
@@ -85,7 +112,6 @@ public class DisplayExpenseFragment extends Fragment {
             Toast.makeText(getContext(), "Username is null or empty", Toast.LENGTH_SHORT).show();
             return; // Dừng phương thức nếu username không hợp lệ
         }
-
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         Cursor cursor = dbHelper.getExpensesByUsername(username);
 
@@ -104,7 +130,7 @@ public class DisplayExpenseFragment extends Fragment {
             } while (cursor.moveToNext());
 
             // Thiết lập adapter cho RecyclerView
-            adapter = new ExpenseAdapter(expenses);
+            adapter = new ExpenseAdapter(getContext(), expenses);
             recyclerView.setAdapter(adapter);
         }
     }
@@ -113,7 +139,6 @@ public class DisplayExpenseFragment extends Fragment {
             Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
             return;
         }
-
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         Cursor cursor = dbHelper.searchExpensesByCriteria(username, column, query);
 

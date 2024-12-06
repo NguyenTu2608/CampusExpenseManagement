@@ -1,5 +1,6 @@
 package com.example.campus_expensemanager.activity;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
-    private List<Expense> expenses;
 
-    public ExpenseAdapter(List<Expense> expenses) {
+    private Context context;
+    private List<Expense> expenses;
+    private List<Expense> filteredList;
+
+    public ExpenseAdapter(Context context, List<Expense> expenses) {
+        this.context = context;
         this.expenses = expenses;
+        this.filteredList = new ArrayList<>(expenses);
     }
 
     @NonNull
@@ -47,21 +53,16 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         String typeText = "Type: " + expense.getType();
         String categoryText = "Category: " + expense.getCategory();
 
-
-
         holder.description.setText(descriptionText);
         holder.date.setText(dateText);
         holder.type.setText(typeText);
         holder.category.setText(categoryText);
 
-
-
-
     }
 
     @Override
     public int getItemCount() {
-        return expenses.size();
+        return filteredList.size();
     }
 
     public static class ExpenseViewHolder extends RecyclerView.ViewHolder {
@@ -78,22 +79,26 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     public void updateData(List<Expense> newExpenses) {
         expenses.clear();
         expenses.addAll(newExpenses);
+        filteredList.clear();
+        filteredList.addAll(newExpenses);
         notifyDataSetChanged();
     }
-//    public static class CategoryViewHolder extends RecyclerView.ViewHolder {
-//        TextView categoryName;
-//
-//        public CategoryViewHolder(@NonNull View itemView) {
-//            super(itemView);
-//            categoryName = itemView.findViewById(R.id.expense_name);   }
-//    }
-//
-//    public void updateExpenses(List<Expense> newExpenses) {
-//        this.expenses.clear();
-//        this.expenses.addAll(newExpenses);
-//        notifyDataSetChanged();
-//    }
 
+    public void filter(String keyword) {
+        filteredList.clear();
+        if (keyword.isEmpty()) {
+            filteredList.addAll(expenses); // Hiển thị toàn bộ nếu từ khóa trống
+        } else {
+            for (Expense expense : expenses) {
+                if (expense.getDescription().toLowerCase().contains(keyword.toLowerCase()) ||
+                        expense.getType().toLowerCase().contains(keyword.toLowerCase()) ||
+                        expense.getCategory().toLowerCase().contains(keyword.toLowerCase())) {
+                    filteredList.add(expense);
+                }
+            }
+        }
+        notifyDataSetChanged(); // Cập nhật RecyclerView
+    }
 
 }
 
