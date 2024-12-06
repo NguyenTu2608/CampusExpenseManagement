@@ -15,6 +15,10 @@ import androidx.fragment.app.Fragment;
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.database.DatabaseHelper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class AddCategoryFragment extends Fragment {
 
     private DatabaseHelper dbHelper;
@@ -46,6 +50,16 @@ public class AddCategoryFragment extends Fragment {
         return view;
     }
 
+    private boolean isValidDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        dateFormat.setLenient(false); // Không cho phép định dạng sai
+        try {
+            dateFormat.parse(date); // Kiểm tra nếu chuỗi có thể parse thành ngày hợp lệ
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
     private void addCategory() {
         String name = etCategoryName.getText().toString().trim();
         String description = etCategoryDescription.getText().toString().trim();
@@ -56,6 +70,7 @@ public class AddCategoryFragment extends Fragment {
             Toast.makeText(getActivity(), "Category name cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (description.isEmpty()) {
             Toast.makeText(getActivity(), "Category description cannot be empty", Toast.LENGTH_SHORT).show();
             return;
@@ -64,6 +79,19 @@ public class AddCategoryFragment extends Fragment {
         // If date is required, check if it is empty
         if (date.isEmpty()) {
             Toast.makeText(getActivity(), "Please enter a date for the category", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isValidDate(date)) {
+            Toast.makeText(getContext(), "Invalid date format. Please use YYYY-MM-DD.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (dbHelper.isCategoryExists(username, name)) {
+            Toast.makeText(getActivity(), "Category already exists. Please choose a different name.", Toast.LENGTH_SHORT).show();
+            etCategoryName.setText("");
+            etCategoryDescription.setText("");
+            etCategoryDate.setText("");
             return;
         }
 

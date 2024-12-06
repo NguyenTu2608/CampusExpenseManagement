@@ -240,13 +240,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return categories;
     }
-    public boolean updateCategoryBalance(String categoryName, String type, double amount) {
+    public boolean isCategoryExists(String username, String categoryName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT 1 FROM " + TABLE_CATEGORIES +
+                " WHERE " + COLUMN_CATEGORY_NAME + " = ? AND " + COLUMN_USERNAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{categoryName, username});
+        boolean exists = (cursor.getCount() > 0); // Nếu có kết quả, danh mục đã tồn tại
+        cursor.close();
+        return exists;
+    }
+
+    public boolean updateCategoryBalance(String username,String categoryName, String type, double amount) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Lấy balance hiện tại của category
         String query = "SELECT " + COLUMN_BALANCE + " FROM " + TABLE_CATEGORIES +
-                " WHERE " + COLUMN_CATEGORY_NAME + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{categoryName});
+                " WHERE " + COLUMN_CATEGORY_NAME + " = ? AND " + COLUMN_USERNAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{categoryName, username});
 
         if (cursor != null && cursor.moveToFirst()) {
             @SuppressLint("Range") double currentBalance = cursor.getDouble(cursor.getColumnIndex(COLUMN_BALANCE));
@@ -264,8 +274,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(COLUMN_BALANCE, newBalance);
 
-            int rowsUpdated = db.update(TABLE_CATEGORIES, values, COLUMN_CATEGORY_NAME + " = ?",
-                    new String[]{categoryName});
+            int rowsUpdated = db.update(TABLE_CATEGORIES, values,
+                    COLUMN_CATEGORY_NAME + " = ? AND " + COLUMN_USERNAME + " = ?",
+                    new String[]{categoryName, username});
 
             return rowsUpdated > 0; // Trả về true nếu cập nhật thành công
         }

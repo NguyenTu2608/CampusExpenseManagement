@@ -17,7 +17,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.database.DatabaseHelper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class AddExpenseFragment extends Fragment {
 
@@ -95,6 +98,7 @@ public class AddExpenseFragment extends Fragment {
 //            categories.add("Other"); // Nếu không có Category nào, thêm "Other" làm mặc định
         }
 
+
         // Tạo adapter cho Spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_item, categories);
@@ -115,6 +119,16 @@ public class AddExpenseFragment extends Fragment {
         });
     }
 
+    private boolean isValidDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        dateFormat.setLenient(false); // Không cho phép định dạng sai
+        try {
+            dateFormat.parse(date); // Kiểm tra nếu chuỗi có thể parse thành ngày hợp lệ
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
     private void addExpense() {
         if (categorySpinner.getAdapter() == null || categorySpinner.getCount() == 0) {
             Toast.makeText(getContext(), "Please add a category before adding expenses.", Toast.LENGTH_SHORT).show();
@@ -128,9 +142,15 @@ public class AddExpenseFragment extends Fragment {
                 Toast.makeText(getContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            if (!isValidDate(date)) {
+                Toast.makeText(getContext(), "Invalid date format. Please use YYYY-MM-DD.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             boolean inserted = dbHelper.addExpense(username, amount, description, date, selectedCategory, selectedType);
             if (inserted) {
-                boolean updated = dbHelper.updateCategoryBalance(selectedCategory, selectedType, amount);
+                boolean updated = dbHelper.updateCategoryBalance(username,selectedCategory, selectedType, amount);
                 if (updated) {
                     Toast.makeText(getContext(), "Expense added and category balance updated", Toast.LENGTH_SHORT).show();
                 } else {

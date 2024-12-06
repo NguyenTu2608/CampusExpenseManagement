@@ -96,7 +96,7 @@ public class DisplayExpenseFragment extends Fragment {
         btnSearchCategory.setOnClickListener(v -> {
             String query = searchEditText.getText().toString();
             if (!query.isEmpty()) {
-                searchExpenses(COLUMN_CATEGORY, query); // Truyền đúng giá trị vào hàm tìm kiếm
+                searchExpenses(COLUMN_CATEGORY, query);
             } else {
                 displayUserExpenses(username);
                 Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
