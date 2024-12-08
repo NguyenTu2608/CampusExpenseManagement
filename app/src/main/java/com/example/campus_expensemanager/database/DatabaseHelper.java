@@ -18,8 +18,8 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Các hằng số cơ sở dữ liệu và tên bảng
-        public static final String DATABASE_NAME = "campus_expense_manager.db";
-        private static final int DATABASE_VERSION = 8;
+        public static final String DATABASE_NAME = "campus_expense_manager1.db";
+        private static final int DATABASE_VERSION = 9;
 
         // Bảng expenses
         private static final String TABLE_EXPENSES = "expenses";
@@ -46,6 +46,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         private static final String COLUMN_CATEGORY_NAME = "name";
         private static final String COLUMN_CATEGORY_DESCRIPTION = "description";
         private static final String COLUMN_DATE_CREATED = "date";
+
+        // bang spending limit
+        private static final String TABLE_SPENDING_LIMITS = "SpendingLimit";
+        private static final String COLUMN_SPENDING_LIMIT_ID = "id";
+        public static final String COLUMN_SPENDING_LIMIT_DESCRIPTION = "description";
+        public static final String COLUMN_SPENDING_LIMIT_AMOUNT = "amount";
+        public static final String COLUMN_SPENDING_START_DATE = "startDate";
+        public static final String COLUMN_SPENDING_END_DATE = "endDate";
 
         // SQL để tạo bảng expenses
         private static final String CREATE_TABLE_EXPENSES =
@@ -79,6 +87,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         COLUMN_BALANCE + " REAL DEFAULT 0," +
                         COLUMN_USERNAME + " TEXT); ";
 
+        private static final String CREATE_TABLE_SPENDING_LIMIT =
+                "CREATE TABLE " + TABLE_SPENDING_LIMITS + " (" +
+                        COLUMN_SPENDING_LIMIT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_SPENDING_LIMIT_DESCRIPTION + " TEXT, " +
+                        COLUMN_SPENDING_LIMIT_AMOUNT + " TEXT, " +
+                        COLUMN_SPENDING_START_DATE + " TEXT, " +
+                        COLUMN_SPENDING_END_DATE + " TEXT, " +
+                        COLUMN_USERNAME + " TEXT); ";
+
         public DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
@@ -87,6 +104,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_TABLE_EXPENSES);
             db.execSQL(CREATE_TABLE_USERS);
             db.execSQL(CREATE_TABLE_CATEGORIES);
+            db.execSQL(CREATE_TABLE_SPENDING_LIMIT);
         }
 
         @Override
@@ -119,10 +137,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             if (oldVersion < 8) {
                 Log.d("DatabaseHelper", "Upgrading from version 5 to 6 - Dropping and recreating tables");
+                db.execSQL("ALTER TABLE " + TABLE_SPENDING_LIMITS + " ADD COLUMN " + COLUMN_USERNAME + " TEXT;");
+            }
+            if(oldVersion < 9)
+            {
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
-                onCreate(db); // Tạo lại tất cả các bảng với cấu trúc mới
             }
         }
     // Phương thức thêm chi tiêu vào cơ sở dữ liệu
@@ -319,7 +340,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return categoryList;
     }
 
-
     public Cursor searchExpensesByCriteria(String username, String column, String query) {
         SQLiteDatabase db = getReadableDatabase();
         String queryString = "SELECT * FROM expenses WHERE username = ? AND " + column + " LIKE ?";
@@ -327,16 +347,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery(queryString, selectionArgs);
     }
 
-    public Cursor getCurrentUser() {
+    public boolean insertSpendingLimit(String description, String amount, String startDate, String endDate, String username) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_SPENDING_LIMIT_DESCRIPTION, description);
+        values.put(COLUMN_SPENDING_LIMIT_AMOUNT, amount);
+        values.put(COLUMN_SPENDING_START_DATE, startDate);
+        values.put(COLUMN_SPENDING_END_DATE, endDate);
+        values.put(COLUMN_USERNAME, username);
+
+        // Insert the new row and return the row ID
+        long result = db.insert("SpendingLimit", null, values);
+        return result != -1;
+    }
+
+    public Cursor getSpendingLimitByUsername(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
-        // Cập nhật truy vấn để tìm người dùng đang đăng nhập
-        String query = "SELECT username FROM " + TABLE_USERS + " WHERE is_logged_in = 1";
-        return db.rawQuery(query, null);
+        String query = "SELECT * FROM " + TABLE_SPENDING_LIMITS + " WHERE " + COLUMN_USERNAME + " = ?";
+        return db.rawQuery(query, new String[]{username});
     }
 
     public void checkTableStructure() {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_CATEGORIES + ")", null);
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_SPENDING_LIMITS + ")", null);
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {

@@ -23,7 +23,7 @@
         android:id="@+id/btn_monthly_limit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hạn mức chi tiêu trong 1 tháng"
+        android:text="Spending limit"
         android:backgroundTint="@color/green"
         android:textColor="@color/white"
         android:layout_marginBottom="12dp" />
@@ -33,7 +33,7 @@
         android:id="@+id/btn_spending_chart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Biểu đồ chi tiêu theo ngày trong 1 tháng"
+        android:text="Spending chart"
         android:backgroundTint="@color/red"
         android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
@@ -43,7 +43,7 @@
         android:id="@+id/tv_notifications_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Các thông báo gần đây:"
+        android:text="Recent notifications:"
         android:textSize="18sp"
         android:textColor="@color/black"
         android:layout_marginBottom="8dp" />
