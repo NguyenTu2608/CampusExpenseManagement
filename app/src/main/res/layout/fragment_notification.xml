@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Spending chart"
-        android:backgroundTint="@color/red"
+        android:backgroundTint="@color/gray"
         android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
 
@@ -50,36 +50,14 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1">
 
         <LinearLayout
+            android:id="@+id/notificationLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <!-- Mỗi thông báo -->
-            <TextView
-                android:id="@+id/tv_notification_item_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Thông báo 1: Nội dung chi tiết..."
-                android:padding="8dp"
-                android:textSize="16sp"
-                android:background="@drawable/notification_item_bg"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tv_notification_item_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Thông báo 2: Nội dung chi tiết..."
-                android:padding="8dp"
-                android:textSize="16sp"
-                android:background="@drawable/notification_item_bg"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Add more items dynamically in your Fragment -->
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

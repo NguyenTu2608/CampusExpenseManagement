@@ -3,5 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#4CAF50</color>  <!-- Màu xanh lá cây -->
-    <color name="red">#F44336</color>    <!-- Màu đỏ -->
+    <color name="red">#F44336</color>
+    <color name="gray">#808080</color><!-- Màu đỏ -->
 </resources>

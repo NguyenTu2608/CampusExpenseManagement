@@ -367,6 +367,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + TABLE_SPENDING_LIMITS + " WHERE " + COLUMN_USERNAME + " = ?";
         return db.rawQuery(query, new String[]{username});
     }
+    @SuppressLint("Range")
+    public double getNetBudgetInRange(String username, String startDate, String endDate) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Tính tổng Income
+        String incomeQuery = "SELECT SUM(amount) AS total FROM expenses WHERE username = ? AND type = 'Income' AND date >= ? AND date <= ?";
+        Cursor incomeCursor = db.rawQuery(incomeQuery, new String[]{username, startDate, endDate});
+        double totalIncome = 0.0;
+
+        if (incomeCursor != null && incomeCursor.moveToFirst()) {
+            totalIncome = incomeCursor.getDouble(incomeCursor.getColumnIndex("total"));
+            incomeCursor.close();
+        }
+
+        // Tính tổng Expense
+        String expenseQuery = "SELECT SUM(amount) AS total FROM expenses WHERE username = ? AND type = 'Expense' AND date >= ? AND date <= ?";
+        Cursor expenseCursor = db.rawQuery(expenseQuery, new String[]{username, startDate, endDate});
+        double totalExpense = 0.0;
+
+        if (expenseCursor != null && expenseCursor.moveToFirst()) {
+            totalExpense = expenseCursor.getDouble(expenseCursor.getColumnIndex("total"));
+            expenseCursor.close();
+        }
+
+        // Ngân sách thực tế = Tổng Income - Tổng Expense
+        return totalIncome - totalExpense;
+    }
 
     public void checkTableStructure() {
             SQLiteDatabase db = this.getReadableDatabase();

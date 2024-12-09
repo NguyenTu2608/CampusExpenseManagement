@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.campus_expensemanager.R;
 import com.example.campus_expensemanager.database.DatabaseHelper;
@@ -24,13 +25,14 @@ import java.util.Locale;
 public class SpendingLimitFragment extends Fragment {
     private DatabaseHelper dbHelper;
     private EditText fromDateEditText, toDateEditText, budgetEditText, notesEditText;
-    private Button saveButton;
+    private Button saveButton,displayButton;
     private Calendar calendar;
     private String username;
     public SpendingLimitFragment() {
         // Required empty public constructor
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class SpendingLimitFragment extends Fragment {
         budgetEditText = view.findViewById(R.id.budget_input);
         notesEditText = view.findViewById(R.id.note_input);
         saveButton = view.findViewById(R.id.save_button);
+        displayButton = view.findViewById(R.id.display_spending_limit);
 
         if (getArguments() != null) {
             username = getArguments().getString("username");
@@ -57,10 +60,19 @@ public class SpendingLimitFragment extends Fragment {
         // Set up DatePicker dialogs for both dates
         setupDatePicker(fromDateEditText);
         setupDatePicker(toDateEditText);
-
         // Handle Save button click
         saveButton.setOnClickListener(v -> saveSpendingLimit());
 
+        displayButton.setOnClickListener(v -> {
+            DisplaySpendingLimitFragment displaySpendingLimitFragment = new DisplaySpendingLimitFragment();
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            Bundle bundle = new Bundle();
+            bundle.putString("username", username); // Truyền username
+            displaySpendingLimitFragment.setArguments(bundle);
+            transaction.replace(R.id.fragment_container, displaySpendingLimitFragment); // R.id.fragment_container là container của Fragment trong activity
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
         return view;
     }
 
@@ -107,21 +119,6 @@ public class SpendingLimitFragment extends Fragment {
             }
         }
     }
-    private void loadSpendingLimit() {
-        Cursor cursor = dbHelper.getSpendingLimitByUsername(username);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SPENDING_LIMIT_DESCRIPTION));
-            @SuppressLint("Range") String amount = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SPENDING_LIMIT_AMOUNT));
-            @SuppressLint("Range") String startDate = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SPENDING_START_DATE));
-            @SuppressLint("Range") String endDate = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SPENDING_END_DATE));
 
-//            descriptionEditText.setText(description);
-//            amountEditText.setText(amount);
-//            startDateEditText.setText(startDate);
-//            endDateEditText.setText(endDate);
-
-            cursor.close();
-        }
-    }
 }

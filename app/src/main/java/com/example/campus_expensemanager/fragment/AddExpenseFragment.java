@@ -1,5 +1,9 @@
 package com.example.campus_expensemanager.fragment;
 
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +12,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -19,6 +25,8 @@ import com.example.campus_expensemanager.database.DatabaseHelper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,6 +39,7 @@ public class AddExpenseFragment extends Fragment {
     private Spinner typeSpinner;
     private String selectedType;
     private String username;
+    private Calendar calendar;
 
     public AddExpenseFragment() {
         // Required empty public constructor
@@ -47,6 +56,7 @@ public class AddExpenseFragment extends Fragment {
         dateEditText = view.findViewById(R.id.dateEditText);
         categorySpinner = view.findViewById(R.id.categorySpinner);
         typeSpinner = view.findViewById(R.id.typeSpinner);
+        calendar = Calendar.getInstance();
 
 
         if (getArguments() != null) {
@@ -56,6 +66,9 @@ public class AddExpenseFragment extends Fragment {
 
         Button addButton = view.findViewById(R.id.addButton);
         Button btnDisplay = view.findViewById(R.id.btnDisplay);
+
+        setupDatePicker(dateEditText);
+
 
 
         btnDisplay.setOnClickListener(v -> {
@@ -92,6 +105,24 @@ public class AddExpenseFragment extends Fragment {
         return view;
     }
 
+    private void setupDatePicker(EditText editText) {
+        editText.setOnClickListener(v -> {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    requireContext(),
+                    (view, year, month, dayOfMonth) -> {
+                        // Format the selected date
+                        String formattedDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                .format(new GregorianCalendar(year, month, dayOfMonth).getTime());
+                        editText.setText(formattedDate);
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+            datePickerDialog.show();
+        });
+    }
+
     private void loadCategoriesForUser(String username) {
         List<String> categories = dbHelper.getCategoriesByUser(username);
         if (categories.isEmpty()) {
@@ -119,16 +150,7 @@ public class AddExpenseFragment extends Fragment {
         });
     }
 
-    private boolean isValidDate(String date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        dateFormat.setLenient(false); // Không cho phép định dạng sai
-        try {
-            dateFormat.parse(date); // Kiểm tra nếu chuỗi có thể parse thành ngày hợp lệ
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
-    }
+
     private void addExpense() {
         if (categorySpinner.getAdapter() == null || categorySpinner.getCount() == 0) {
             Toast.makeText(getContext(), "Please add a category before adding expenses.", Toast.LENGTH_SHORT).show();
@@ -140,11 +162,6 @@ public class AddExpenseFragment extends Fragment {
             String date = dateEditText.getText().toString().trim();
             if (amount <= 0 || description.isEmpty() || date.isEmpty()) {
                 Toast.makeText(getContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!isValidDate(date)) {
-                Toast.makeText(getContext(), "Invalid date format. Please use YYYY-MM-DD.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -170,4 +187,5 @@ public class AddExpenseFragment extends Fragment {
             Toast.makeText(getContext(), "Please enter a valid amount", Toast.LENGTH_SHORT).show();
         }
     }
+
 }

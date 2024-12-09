@@ -1,5 +1,6 @@
 package com.example.campus_expensemanager.fragment;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,8 @@ import com.example.campus_expensemanager.database.DatabaseHelper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class AddCategoryFragment extends Fragment {
@@ -25,6 +28,7 @@ public class AddCategoryFragment extends Fragment {
     private EditText etCategoryName, etCategoryDescription, etCategoryDate;
     private Button btnAdd;
     private String username;
+    private Calendar calendar;
 
     @Nullable
     @Override
@@ -39,10 +43,13 @@ public class AddCategoryFragment extends Fragment {
         etCategoryDescription = view.findViewById(R.id.et_category_description);
         etCategoryDate = view.findViewById(R.id.et_category_date);
         btnAdd = view.findViewById(R.id.btn_add);
+        calendar = Calendar.getInstance();
 
         if (getArguments() != null) {
             username = getArguments().getString("username");
         }
+
+        setupDatePicker(etCategoryDate);
 
         // Set click listener for Add button
         btnAdd.setOnClickListener(v -> addCategory());
@@ -50,16 +57,24 @@ public class AddCategoryFragment extends Fragment {
         return view;
     }
 
-    private boolean isValidDate(String date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        dateFormat.setLenient(false); // Không cho phép định dạng sai
-        try {
-            dateFormat.parse(date); // Kiểm tra nếu chuỗi có thể parse thành ngày hợp lệ
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
+    private void setupDatePicker(EditText editText) {
+        editText.setOnClickListener(v -> {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    requireContext(),
+                    (view, year, month, dayOfMonth) -> {
+                        // Format the selected date
+                        String formattedDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                .format(new GregorianCalendar(year, month, dayOfMonth).getTime());
+                        editText.setText(formattedDate);
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+            datePickerDialog.show();
+        });
     }
+
     private void addCategory() {
         String name = etCategoryName.getText().toString().trim();
         String description = etCategoryDescription.getText().toString().trim();
@@ -82,10 +97,6 @@ public class AddCategoryFragment extends Fragment {
             return;
         }
 
-        if (!isValidDate(date)) {
-            Toast.makeText(getContext(), "Invalid date format. Please use YYYY-MM-DD.", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         if (dbHelper.isCategoryExists(username, name)) {
             Toast.makeText(getActivity(), "Category already exists. Please choose a different name.", Toast.LENGTH_SHORT).show();

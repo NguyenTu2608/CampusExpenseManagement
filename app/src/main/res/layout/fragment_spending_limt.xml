@@ -41,6 +41,8 @@
                     android:layout_height="wrap_content"
                     android:text="From Date:"
                     android:textSize="16sp"
+                    android:focusable="false"
+                    android:inputType="none"
                     android:textColor="@color/black" />
 
                 <EditText
@@ -48,7 +50,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="dd/mm/yyyy"
-                    android:inputType="date"
+                    android:inputType="none"
+                    android:focusable="false"
                     android:padding="12dp"
                      />
             </LinearLayout>
@@ -125,6 +128,16 @@
             android:backgroundTint="@color/green"
             android:textColor="@color/white"
             android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/display_spending_limit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Display Spending Limit"
+            android:backgroundTint="@color/red"
+            android:textColor="@color/white"
+            android:layout_marginTop="10dp" />
+
 
     </LinearLayout>
 </ScrollView>
