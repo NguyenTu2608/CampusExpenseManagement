@@ -23,7 +23,7 @@ public class SpendingChartFragment extends Fragment {
         if (getArguments() != null) {
             username = getArguments().getString("username");
         }
-        
+
         return view;
     }
 
