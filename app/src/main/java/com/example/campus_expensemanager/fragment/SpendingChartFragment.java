@@ -13,7 +13,7 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 
 import com.example.campus_expensemanager.R;
-import com.example.campus_expensemanager.View.CustomBarChartView;
+import com.example.campus_expensemanager.View.CustomBarCharView;
 import com.example.campus_expensemanager.database.DatabaseHelper;
 import com.example.campus_expensemanager.entities.Expense;
 
@@ -32,7 +32,7 @@ public class SpendingChartFragment extends Fragment {
     private DatabaseHelper dbHelper;
     private Button generateChart;
     private EditText fromDate, toDate;
-    private CustomBarChartView chartView;
+    private CustomBarCharView chartView;
     private Calendar calendar;
 
     @SuppressLint("MissingInflatedId")
