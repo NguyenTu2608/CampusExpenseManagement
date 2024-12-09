@@ -48,7 +48,7 @@ public class SpendingChartFragment extends Fragment {
         toDate = view.findViewById(R.id.to_date);
         generateChart = view.findViewById(R.id.generate_chart);
         calendar = Calendar.getInstance();
-        chartView = view.findViewById(R.id.chart_view);
+        chartView = view.findViewById(R.id.customBarChartView);
         setupDatePicker(fromDate);
         setupDatePicker(toDate);
 

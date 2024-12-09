@@ -78,9 +78,12 @@
         android:textSize="16sp"
         android:text="Generate Chart" />
 
-    <com.example.campus_expensemanager.View.CustomBarCharView
-        android:id="@+id/chart_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_margin="10dp"
-        android:layout_height="300dp" />
+        android:layout_height="match_parent">
+        <com.example.campus_expensemanager.View.CustomBarCharView
+            android:id="@+id/customBarChartView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp" />
+    </LinearLayout>
 </LinearLayout>

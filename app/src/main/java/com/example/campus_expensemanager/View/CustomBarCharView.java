@@ -77,20 +77,23 @@ public class CustomBarCharView extends View {
         int[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.MAGENTA}; // Màu sắc cho từng hạng mục
         int colorIndex = 0;
 
+        int offsetY = 100; // Dịch xuống dưới (tăng giá trị để dịch xuống thêm)
+
         for (Map.Entry<String, Float> entry : groupedExpenses) {
             float sweepAngle = (entry.getValue() / total) * 360;
 
             paint.setColor(colors[colorIndex % colors.length]); // Lấy màu tương ứng
             colorIndex++;
 
-            canvas.drawArc(200, 200, getWidth() - 200, getHeight() - 200, startAngle, sweepAngle, true, paint);
+            // Điều chỉnh tọa độ để dịch biểu đồ xuống dưới
+            canvas.drawArc(200, 200 + offsetY, getWidth() - 200, getHeight() - 200 + offsetY, startAngle, sweepAngle, true, paint);
 
             startAngle += sweepAngle;
         }
 
         // Vẽ chú thích cho từng hạng mục
-        float legendY = getHeight() - 150; // Khoảng cách giữa biểu đồ và chú thích
-        paint.setTextSize(40);
+        float legendY = 100; // Khoảng cách giữa biểu đồ và chú thích
+        paint.setTextSize(20);
         paint.setColor(Color.BLACK);
 
         colorIndex = 0;
