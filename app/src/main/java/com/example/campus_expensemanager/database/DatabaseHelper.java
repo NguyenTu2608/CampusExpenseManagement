@@ -340,12 +340,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return categoryList;
     }
 
-    public Cursor searchExpensesByCriteria(String username, String column, String query) {
-        SQLiteDatabase db = getReadableDatabase();
-        String queryString = "SELECT * FROM expenses WHERE username = ? AND " + column + " LIKE ?";
-        String[] selectionArgs = { username, "%" + query + "%" };
-        return db.rawQuery(queryString, selectionArgs);
-    }
+
 
     public boolean insertSpendingLimit(String description, String amount, String startDate, String endDate, String username) {
         SQLiteDatabase db = this.getWritableDatabase();

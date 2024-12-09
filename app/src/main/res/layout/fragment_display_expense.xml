@@ -14,70 +14,70 @@
         android:textStyle="bold"
         android:layout_marginBottom="10dp"
         android:textColor="#333333" />
-    <EditText
-        android:id="@+id/searchEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Search by amount, date, type ( Income or Expense ), or category"
-        android:padding="8dp"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:textColor="#000"
-        android:textColorHint="#999"
-        android:layout_marginBottom="5dp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        >
-        <Button
-            android:id="@+id/btn_search_amount"
+        android:layout_marginBottom="16dp">
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="13sp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Search Amount"
-            android:textColor="@android:color/white"
-            />
-        <Button
-            android:id="@+id/btn_search_type"
-            android:layout_width="0dp"
             android:layout_weight="1"
-            android:textSize="13sp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Search Type"
-            android:textColor="@android:color/white"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-        <Button
-            android:id="@+id/btn_search_date"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="13sp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Search Date"
-            android:textColor="@android:color/white"
-            />
-        <Button
-            android:id="@+id/btn_search_category"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="13sp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Search Category"
-            android:textColor="@android:color/white"
-            />
+            android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/from_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From Date :"
+                android:textSize="16sp"
+                android:focusable="false"
+                android:inputType="none"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/from_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="dd/mm/yyyy"
+                android:inputType="none"
+                android:focusable="false"
+                android:padding="12dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/to_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="To Date:"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/to_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="dd/mm/yyyy"
+                android:inputType="date"
+                android:padding="12dp"
+                />
+        </LinearLayout>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/filter_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/teal"
+        android:textSize="16sp"
+        android:text="Filter" />
 
     <ListView
         android:id="@+id/expenseListView"

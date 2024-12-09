@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Spending chart"
-        android:backgroundTint="@color/gray"
+        android:backgroundTint="@color/teal"
         android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
 

@@ -91,7 +91,7 @@ public class NotificationFragment extends Fragment {
         // Tạo icon
         ImageView icon = new ImageView(requireContext());
         icon.setImageResource(R.drawable.ic_notification); // Đặt icon từ file drawable
-        int iconSize = 60; // Kích thước của icon
+        int iconSize = 70; // Kích thước của icon
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(iconSize, iconSize);
         iconParams.setMargins(10, 0, 20, 0); // Thêm margin giữa icon và text
         icon.setLayoutParams(iconParams);

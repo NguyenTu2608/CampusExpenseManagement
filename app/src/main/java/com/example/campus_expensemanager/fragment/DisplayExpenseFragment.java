@@ -9,6 +9,7 @@ import static com.example.campus_expensemanager.database.DatabaseHelper.COLUMN_C
 import static com.example.campus_expensemanager.database.DatabaseHelper.COLUMN_DATE;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,14 +33,21 @@ import com.example.campus_expensemanager.activity.ExpenseAdapter;
 import com.example.campus_expensemanager.database.DatabaseHelper;
 import com.example.campus_expensemanager.entities.Expense;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 public class DisplayExpenseFragment extends Fragment {
     private RecyclerView recyclerView;
-    private EditText searchEditText;
-    private Button btnSearchAmount, btnSearchType, btnSearchDate, btnSearchCategory;
+    private EditText fromDate, toDate;
+    private Button filterExpense;
     private ExpenseAdapter adapter;
+    private Calendar calendar;
     private String username;
 
     @Override
@@ -47,11 +55,13 @@ public class DisplayExpenseFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_display_expense, container, false);
 
-        searchEditText = view.findViewById(R.id.searchEditText);
-        btnSearchAmount = view.findViewById(R.id.btn_search_amount);
-        btnSearchType = view.findViewById(R.id.btn_search_type);
-        btnSearchDate = view.findViewById(R.id.btn_search_date);
-        btnSearchCategory = view.findViewById(R.id.btn_search_category);
+        fromDate = view.findViewById(R.id.from_date);
+        toDate = view.findViewById(R.id.to_date);
+        filterExpense = view.findViewById(R.id.filter_button);
+        calendar = Calendar.getInstance();
+        setupDatePicker(fromDate);
+        setupDatePicker(toDate);
+
         // Nhận username từ Bundle nếu có
         if (getArguments() != null) {
             username = getArguments().getString("username");
@@ -64,46 +74,32 @@ public class DisplayExpenseFragment extends Fragment {
         // Hiển thị chi tiêu của người dùng
         displayUserExpenses(username);
 
-        btnSearchAmount.setOnClickListener(v -> {
-            String query = searchEditText.getText().toString();
-            if (!query.isEmpty()) {
-                searchExpenses(COLUMN_AMOUNT, query); // Truyền đúng giá trị vào hàm tìm kiếm
-            } else {
+        filterExpense.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 displayUserExpenses(username);
-                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnSearchType.setOnClickListener(v -> {
-            String query = searchEditText.getText().toString();
-            if (!query.isEmpty()) {
-                searchExpenses(COLUMN_TYPE, query); // Truyền đúng giá trị vào hàm tìm kiếm
-            } else {
-                displayUserExpenses(username);
-                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
-            }
-        });
-        btnSearchDate.setOnClickListener(v -> {
-            String query = searchEditText.getText().toString();
-            if (!query.isEmpty()) {
-                searchExpenses(COLUMN_DATE, query); // Truyền đúng giá trị vào hàm tìm kiếm
-            } else {
-                displayUserExpenses(username);
-                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnSearchCategory.setOnClickListener(v -> {
-            String query = searchEditText.getText().toString();
-            if (!query.isEmpty()) {
-                searchExpenses(COLUMN_CATEGORY, query);
-            } else {
-                displayUserExpenses(username);
-                Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
             }
         });
 
         return view;
+    }
+
+    private void setupDatePicker(EditText editText) {
+        editText.setOnClickListener(v -> {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    requireContext(),
+                    (view, year, month, dayOfMonth) -> {
+                        // Format the selected date
+                        String formattedDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                .format(new GregorianCalendar(year, month, dayOfMonth).getTime());
+                        editText.setText(formattedDate);
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+            datePickerDialog.show();
+        });
     }
 
     // Hàm để hiển thị chi tiêu của người dùng từ cơ sở dữ liệu
@@ -112,6 +108,28 @@ public class DisplayExpenseFragment extends Fragment {
             Toast.makeText(getContext(), "Username is null or empty", Toast.LENGTH_SHORT).show();
             return; // Dừng phương thức nếu username không hợp lệ
         }
+
+        // Lấy ngày từ EditText
+        String fromDateString = fromDate.getText().toString();
+        String toDateString = toDate.getText().toString();
+
+        // Chuyển đổi ngày từ chuỗi sang Date nếu có
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        Date fromDate = null;
+        Date toDate = null;
+
+        try {
+            if (!fromDateString.isEmpty()) {
+                fromDate = sdf.parse(fromDateString);
+            }
+            if (!toDateString.isEmpty()) {
+                toDate = sdf.parse(toDateString);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Khởi tạo DatabaseHelper
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         Cursor cursor = dbHelper.getExpensesByUsername(username);
 
@@ -125,8 +143,19 @@ public class DisplayExpenseFragment extends Fragment {
                 @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_TYPE));
                 @SuppressLint("Range") String category = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY));
 
-                // Thêm chi tiêu vào danh sách
-                expenses.add(new Expense(amount, description, date, type, category));
+                // Chuyển đổi ngày từ chuỗi sang Date
+                Date expenseDate = null;
+                try {
+                    expenseDate = sdf.parse(date);  // giả sử ngày trong DB là chuỗi định dạng "dd/MM/yyyy"
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                // Nếu ngày chi tiêu nằm trong khoảng thời gian đã chọn
+                if ((fromDate == null || expenseDate.after(fromDate) || expenseDate.equals(fromDate)) &&
+                        (toDate == null || expenseDate.before(toDate) || expenseDate.equals(toDate))) {
+                    expenses.add(new Expense(amount, description, date, type, category));
+                }
             } while (cursor.moveToNext());
 
             // Thiết lập adapter cho RecyclerView
@@ -134,30 +163,5 @@ public class DisplayExpenseFragment extends Fragment {
             recyclerView.setAdapter(adapter);
         }
     }
-    private void searchExpenses(String column, String query) {
-        if (query.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        DatabaseHelper dbHelper = new DatabaseHelper(getContext());
-        Cursor cursor = dbHelper.searchExpensesByCriteria(username, column, query);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            List<Expense> expenses = new ArrayList<>();
-            do {
-                @SuppressLint("Range") int amount = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_AMOUNT));
-                @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DESCRIPTION));
-                @SuppressLint("Range") String date = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE));
-                @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_TYPE));
-                @SuppressLint("Range") String category = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY));
-
-                expenses.add(new Expense(amount, description, date, type, category));
-            } while (cursor.moveToNext());
-
-            // Cập nhật RecyclerView với kết quả tìm kiếm
-            adapter.updateData(expenses);
-        } else {
-            Toast.makeText(getContext(), "No results found", Toast.LENGTH_SHORT).show();
-        }
-    }
 }
