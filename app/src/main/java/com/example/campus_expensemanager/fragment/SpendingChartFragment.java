@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,7 +98,8 @@ public class SpendingChartFragment extends Fragment {
 
                 // Kiểm tra nếu chi tiêu nằm trong khoảng thời gian đã chọn
                 if (isWithinDateRange(date, fromDateStr, toDateStr)) {
-                    expenses.add(new Expense(amount, date,type,category, description));
+                    expenses.add(new Expense(amount, date, type,category, description));
+                    Log.d("DEBUG", "Database type: " + type);
                 }
             } while (cursor.moveToNext());
             cursor.close();
@@ -113,7 +115,6 @@ public class SpendingChartFragment extends Fragment {
             Date expense = sdf.parse(expenseDate);
             Date from = sdf.parse(fromDateStr);
             Date to = sdf.parse(toDateStr);
-
             // Nếu ngày chi tiêu nằm trong khoảng, trả về true
             return expense != null && expense.after(from) && expense.before(to);
         } catch (ParseException e) {

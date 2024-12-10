@@ -1,7 +1,9 @@
 package com.example.campus_expensemanager.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -37,8 +41,6 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private CategoryAdapter categoryAdapter;
     private DatabaseHelper databaseHelper;
-
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -68,6 +70,11 @@ public class HomeFragment extends Fragment {
         // Lấy username từ Bundle truyền vào
         if (getArguments() != null) {
             username = getArguments().getString("username");
+        }
+        if (username == null) {
+            // Hoặc lấy từ SharedPreferences nếu không có trong Bundle
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+            username = sharedPreferences.getString("username", null);
         }
 
         btnInformation.setOnClickListener(v -> {
@@ -117,17 +124,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void logout() {
-        // Xóa thông tin đăng nhập trong SharedPreferences
         if (getActivity() != null) {
-            getActivity().getSharedPreferences("user_prefs", getActivity().MODE_PRIVATE)
-                    .edit().clear().apply();
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear(); // Xóa trạng thái đăng nhập
+            editor.apply();
+
+            // Điều hướng lại về LoginFragment
+            ((MainActivity) getActivity()).loadFragment(new LoginFragment());
+            Toast.makeText(getActivity(), "You have been logged out", Toast.LENGTH_SHORT).show();
         }
-        // Quay về màn hình đăng nhập
-        // Giả sử bạn có một LoginActivity để xử lý đăng nhập
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa ngăn xếp và tạo mới
-        startActivity(intent);
-        getActivity().finish(); // Kết thúc HomeActivity hoặc màn hình hiện tại
     }
 
 
@@ -139,7 +145,7 @@ public class HomeFragment extends Fragment {
         if (user != null && user.moveToFirst()) {
             // Cập nhật lời chào tên người dùng
             @SuppressLint("Range") String userName = user.getString(user.getColumnIndex(DatabaseHelper.COLUMN_USERNAME));
-            tvName.setText("Chào " + userName);
+            tvName.setText("Hello " + userName);
 
             // Cập nhật tên đầy đủ trên thẻ ngân hàng
             @SuppressLint("Range") String fullName = user.getString(user.getColumnIndex(DatabaseHelper.COLUMN_FULL_NAME));

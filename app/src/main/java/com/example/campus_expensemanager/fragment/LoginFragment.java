@@ -2,6 +2,7 @@ package com.example.campus_expensemanager.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -57,6 +58,7 @@ public class LoginFragment extends Fragment {
             if (isValidLogin(username, password)) {
                 Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
                 navigateToHomeFragment(username);
+                saveLoginSession(username);
             } else {
                 Toast.makeText(getActivity(), "Invalid username or password", Toast.LENGTH_SHORT).show();
             }
@@ -76,15 +78,22 @@ public class LoginFragment extends Fragment {
 
         return view;
     }
+    private void saveLoginSession(String username) {
+        // Lưu trạng thái đăng nhập vào SharedPreferences
+        if (getActivity() != null) {
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", getContext().MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("isLoggedIn", true); // Lưu trạng thái đăng nhập
+            editor.putString("username", username); // Lưu tên người dùng
+            editor.apply();
+        }
+    }
     private void navigateToHomeFragment(String loggedInUsername) {
         Bundle bundle = new Bundle();
         bundle.putString("username", loggedInUsername);
-
         // Tạo HomeFragment mới và thiết lập Bundle vào fragment
         HomeFragment homeFragment = new HomeFragment();
         homeFragment.setArguments(bundle);
-
-        // Thực hiện giao diện chuyển fragment
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, homeFragment); // R.id.fragment_container là container của Fragment trong activity
         transaction.addToBackStack(null);
@@ -98,6 +107,7 @@ public class LoginFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
 
     private boolean isValidLogin(String username, String password) {
         return databaseHelper.checkUserCredentials(username, password);
