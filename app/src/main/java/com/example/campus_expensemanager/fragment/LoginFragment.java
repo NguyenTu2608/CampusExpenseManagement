@@ -72,9 +72,10 @@ public class LoginFragment extends Fragment {
 
         // Handle forgot password link click
         tvForgotPassword.setOnClickListener(v -> {
-            // TODO: Navigate to Forgot Password Screen
+            navigateToForgotPasswordFragment();
             Toast.makeText(getActivity(), "Navigate to Forgot Password Screen", Toast.LENGTH_SHORT).show();
         });
+
 
         return view;
     }
@@ -104,6 +105,14 @@ public class LoginFragment extends Fragment {
         RegisterFragment registerFragment = new RegisterFragment();
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, registerFragment); // Replace with RegisterFragment
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+    private void navigateToForgotPasswordFragment()
+    {
+        ForgotPasswordFragment forgotPasswordFragment = new ForgotPasswordFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, forgotPasswordFragment); // Replace with RegisterFragment
         transaction.addToBackStack(null);
         transaction.commit();
     }

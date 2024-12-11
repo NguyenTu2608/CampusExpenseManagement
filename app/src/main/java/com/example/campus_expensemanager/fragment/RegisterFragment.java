@@ -59,6 +59,10 @@ public class RegisterFragment extends Fragment {
                     Toast.makeText(getActivity(), "Email or Username already exists", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (!email.endsWith("@gmail.com")) {
+                    Toast.makeText(getActivity(), "Email must end with @gmail.com", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 // Insert user into the database
                 boolean isInserted = databaseHelper.insertUser(fullName, email, username, password, phone);
